@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>سیگنال زنده Diamond / Supply</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6f8;--card:#fff;--tx:#14202b;--mu:#66727e;--bd:#d9e0e6;--ac:#2962ff;--up:#12a594;--dn:#e5484d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1419;--card:#161e26;--tx:#e6ebf0;--mu:#8a97a3;--bd:#27323d;--ac:#5b8cff;--up:#2dd4bf;--dn:#ff6b70}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Tahoma,system-ui,sans-serif}
+main{max-width:960px;margin:auto;padding:12px}
+h1{font-size:19px;margin:4px 0}h2{font-size:15px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px}
+label{font-size:12px;color:var(--mu);display:block}
+input,select{width:100%;box-sizing:border-box;padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit}
+input[type=checkbox]{width:auto}
+button{padding:9px 14px;border:0;border-radius:6px;background:var(--ac);color:#fff;font:inherit;cursor:pointer;margin:6px 0 0 6px}
+button.o{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.k{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-bottom:8px}
+.k div{border:1px solid var(--bd);border-radius:8px;padding:8px}.k b{display:block;font-size:17px;direction:ltr;text-align:right}.k span{font-size:11px;color:var(--mu)}
+.sg{border:1px solid var(--bd);border-right-width:4px;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:13px;direction:ltr;text-align:left}
+.sg.L{border-right-color:var(--up)}.sg.S{border-right-color:var(--dn)}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px;direction:ltr;white-space:nowrap}
+th,td{padding:5px 7px;border-bottom:1px solid var(--bd);text-align:right}.w{color:var(--up)}.l{color:var(--dn)}
+#st{font-size:13px;color:var(--tx);position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:10px}svg{width:100%;height:150px;display:block}summary{cursor:pointer;font-weight:bold}
+</style>
+</head>
+<body>
+<main>
+<h1>سیگنال زنده Diamond / Supply (روش ۲)</h1>
+<div id="st">آماده. تنظیمات را ببینید و «شروع زنده» را بزنید.</div>
+
+<div class="card"><details open><summary>تنظیمات</summary>
+<div class="g" style="margin-top:8px">
+<div><label>ارزها (به ترتیب حجم ۲۴س)</label><select data-k="count"><option value="20">۲۰ ارز برتر</option><option value="50">۵۰ ارز برتر</option><option value="100" selected>۱۰۰ ارز برتر</option><option value="200">۲۰۰ ارز برتر</option><option value="all">همه جفت‌های USDT</option><option value="custom">دستی</option></select></div><div><label>فهرست دستی (فقط در حالت دستی)</label><input data-k="syms" value="BTCUSDT,ETHUSDT,SOLUSDT" dir="ltr"></div><div><label>حداکثر پوزیشن همزمان (برای آمار)</label><input data-k="maxpos" type="number" value="5"></div>
+<div><label>بازار</label><select data-k="mk"><option value="spot">Spot</option><option value="fut">Futures</option></select></div>
+<div><label>سرمایه ($)</label><input data-k="cap" type="number" value="100"></div>
+<div><label>هدف ($)</label><input data-k="tgt" type="number" value="200"></div>
+<div><label>ریسک هر معامله ٪</label><input data-k="risk" type="number" value="2" step=".5"></div>
+<div><label>حد ضرر ٪ از سطح</label><input data-k="sl" type="number" value="2" step=".5"></div>
+<div><label>فاصله هر TP ٪</label><input data-k="tp" type="number" value="2" step=".5"></div>
+<div><label>طول بازه پروفایل (کندل HTF)</label><input data-k="len" type="number" value="200"></div>
+<div><label>تعداد ردیف</label><input data-k="rows" type="number" value="100"></div>
+<div><label>Node Detection ٪</label><input data-k="nd" type="number" value="7"></div>
+<div><label>آستانه Supply ٪</label><input data-k="sdt" type="number" value="15"></div>
+<div><label>طول سوئینگ ۱۵م</label><input data-k="sw" type="number" value="5"></div>
+<div><label>طول EMA فیلتر روند (کندل ۱۵م)</label><input data-k="ema" type="number" value="800"></div><div><label>حجم کندل شکست × میانگین ۲۰ (۰=خاموش)</label><input data-k="vol" type="number" value="0" step=".1"></div><div><label>منطق ورود</label><select data-k="mode"><option value="m2">مدل ۲: پاکسازی + برگشت + شکست ساختار + پولبک</option><option value="m1">مدل ۱: پاکسازی + برگشت (ورود مستقیم)</option></select></div><div><label>مهلت بازگشت بعد از Sweep (کندل)</label><input data-k="sbars" type="number" value="3"></div><div><label>فاصله SL زیر کف Sweep ٪</label><input data-k="sbuf" type="number" value="0.2" step=".1"></div><div><label>حداقل امتیاز ورود (از ۱۰۰)</label><input data-k="minScore" type="number" value="70"></div><div><label>حداقل R:R تا TP2</label><input data-k="minrr" type="number" value="1.5" step=".1"></div><div><label>Displacement (× ATR)</label><input data-k="disp" type="number" value="1" step=".1"></div><div><label>مهلت MSS (کندل)</label><input data-k="mssb" type="number" value="30"></div><div><label>مهلت ریتریس FVG (کندل)</label><input data-k="fbars" type="number" value="20"></div><div><label>سقف اهرم</label><input data-k="lev" type="number" value="5"></div><div><label>انقضای ستاپ (کندل ۱۵م)</label><input data-k="exp" type="number" value="60"></div>
+<div><label>تعداد کندل ۱۵م برای بک‌تست</label><input data-k="n15" type="number" value="1000"></div>
+<div><label>هدف AI</label><select data-k="aiGoal"><option value="wr" selected>بیشترین وین‌ریت (بدون ضرر خالص)</option><option value="r">بیشترین سود (R)</option></select></div><div><label>تلگرام: Bot Token</label><input data-k="tgt_" dir="ltr" value="8860190304:AAFUtCi9tdcZ_pJatrk3drlUePM9Gjwacso"></div>
+<div><label>تلگرام: Chat ID</label><input data-k="tgc" dir="ltr" value="@signalsiran_bot"></div>
+</div>
+<div class="g" style="margin-top:8px"><div><label>ضریب ATR برای SL (۰=خاموش)</label><input data-k="atrm" type="number" value="0" step=".1"></div><div><label>حداقل نسبت حجم کندل تأیید ÷ میانگین۲۰ (۰=خاموش)</label><input data-k="volmin" type="number" value="0" step=".1"></div><div><label>فیلتر BTC</label><select data-k="btcm"><option value="allow">Allow</option><option value="reduce">Reduce Risk</option><option value="block">Block</option></select></div><div><label>ضریب ریسک Counter-Trend (Reduce)</label><input data-k="btcr" type="number" value="0.5" step=".1"></div><div><label>تأیید کندل ورود (۱=روشن)</label><input data-k="cf" type="number" value="0"></div><div><label>حداقل نسبت بدنه کندل تأیید</label><input data-k="cb" type="number" value="0.4" step=".1"></div><div><label>BE Trigger (R، ۰=خاموش)</label><input data-k="beR" type="number" value="0" step=".25"></div><div><label>Partial: درصد خروج (۰=خاموش)</label><input data-k="pxP" type="number" value="0"></div><div><label>Partial: در چند R</label><input data-k="pxR" type="number" value="1" step=".25"></div><div><label>Trailing</label><select data-k="trl"><option value="none">None</option><option value="atr">ATR</option><option value="swing">Swing</option></select></div><div><label>شروع Trailing (R)</label><input data-k="trR" type="number" value="1.5" step=".25"></div><div><label>ضریب ATR تریلینگ</label><input data-k="trA" type="number" value="2" step=".25"></div><div><label>حداقل امتیاز ورود (۰=خاموش)</label><input data-k="minsc" type="number" value="0"></div><div><label>کارمزد+اسلیپیج هر طرف ٪</label><input data-k="fee" type="number" value="0.05" step=".01"></div></div>
+<div style="margin-top:8px;font-size:13px">تایم‌فریم سطح‌ها:
+<label style="display:inline"><input type="checkbox" data-k="tf1h" checked> 1h</label>
+<label style="display:inline"><input type="checkbox" data-k="tf2h" checked> 2h</label>
+<label style="display:inline"><input type="checkbox" data-k="tf3h" checked> 3h</label>
+<label style="display:inline"><input type="checkbox" data-k="tf4h" checked> 4h</label>
+&nbsp;|&nbsp;<label style="display:inline"><input type="checkbox" data-k="trend" checked> فیلتر روند EMA</label> <label style="display:inline"><input type="checkbox" data-k="conf"> حداقل ۲ TF همپوشان</label> <label style="display:inline"><input type="checkbox" data-k="be"> بریک‌ایون بعد از TP1</label>&nbsp;|&nbsp;<label style="display:inline"><input type="checkbox" data-k="pb" checked> نیاز به پولبک بعد از شکست</label>&nbsp;|&nbsp;<label style="display:inline"><input type="checkbox" data-k="aiOn" checked> 🧠 فیلتر هوش مصنوعی</label> <label style="display:inline"><input type="checkbox" data-k="aiTune" checked> خودتنظیمی AI</label></div>
+<button id="go">شروع زنده</button><button class="o" id="nt">فعال‌سازی نوتیفیکیشن</button><button class="o" id="tt">تست اعلان</button><button class="o" id="op">بهینه‌سازی خودکار</button><button class="o" id="gid">پیدا کردن Chat ID</button><button class="o" id="mr">ارسال گزارش ۱۰۰ معامله اخیر</button><div id="tgs" style="font-size:12px;margin-top:6px;direction:rtl"></div>
+</details></div>
+
+<div id="ch" hidden style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;padding:10px;overflow:auto"><div class="card"><div id="cht" style="font-size:12px;direction:ltr;text-align:left;margin-bottom:6px"></div><canvas id="cv" style="width:100%;height:320px;display:block"></canvas><div style="font-size:11px;color:var(--mu);direction:ltr;text-align:left">S=Sweep · R=Reclaim · B=Break structure · E=Entry · X=Exit · قرمز=SL · سبز=TP · آبی=Entry · نارنجی=سطح Diamond/Supply</div><button onclick="$('ch').hidden=true">بستن</button></div></div>
+<div class="card sc"><h2>بهینه‌سازی (آموزش ۶۵٪ اول / تست ۳۵٪ آخر)</h2><div id="opt" style="font-size:12px;color:var(--mu)">بعد از بارگذاری داده، دکمه «بهینه‌سازی خودکار» را بزنید. برای نتیجه معتبر، «تعداد کندل ۱۵م» را روی ۴۰۰۰ تا ۵۰۰۰ بگذارید.</div></div><div class="card"><h2>🧠 مغز متفکر (تحلیلگر ارشد)</h2><div id="ai" style="font-size:13px;line-height:1.9">هنوز چیزی یاد نگرفته‌ام. «شروع زنده» را بزنید.</div><button id="bh">🧠 آموزش از تاریخچه</button><button class="o" id="bx">خروجی حافظه</button><button class="o" id="brs">پاک‌کردن حافظه</button></div><div class="card"><h2>سیگنال‌های اخیر / باز</h2><div id="sig">—</div></div>
+<div class="card sc"><h2>داشبورد تحلیلی (بر پایه R)</h2><div id="dsh">—</div></div>
+<div class="card"><h2>آمار و وین‌ریت</h2><div id="stats">—</div></div>
+<div class="card sc"><h2>معاملات بسته‌شده</h2><div id="tr">—</div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id),Q=s=>document.querySelectorAll(s);
+const MS={'1h':36e5,'2h':72e5,'3h':108e5,'4h':144e5},fmt=(x,d=2)=>(+x).toLocaleString('en',{maximumFractionDigits:d});
+const T=t=>new Date(t).toLocaleString('en-GB',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+let D={},ALL=[],seen={},first=true,busy=false,timer=null;
+const cfg=()=>{const o={};Q('[data-k]').forEach(e=>o[e.dataset.k]=e.type=='checkbox'?e.checked:e.type=='number'?+e.value:e.value);
+ o.syms=(o.syms||'').toUpperCase().split(/[\s,]+/).filter(Boolean);o.short=true;o.tfs=['1h','2h','3h','4h'].filter(t=>o['tf'+t]);return o};
+try{const s=JSON.parse(localStorage.getItem('vpcfg')||'{}'),tv=localStorage.getItem('vptgv')=='2';if(!tv)localStorage.setItem('vptgv','2');Q('[data-k]').forEach(e=>{if(e.dataset.k in s&&(tv||!/^tg/.test(e.dataset.k)))e.type=='checkbox'?e.checked=s[e.dataset.k]:e.value=s[e.dataset.k]})}catch(e){}
+const st=s=>$('st').textContent=s;
+
+/* ---------- data ---------- */
+const mk=k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]});
+const W=[];async function gate(w){for(;;){const n=Date.now();while(W.length&&n-W[0][0]>6e4)W.shift();if(W.reduce((x,y)=>x+y[1],0)+w<=900)break;await new Promise(r=>setTimeout(r,500))}W.push([Date.now(),w])}
+async function jf(u,w){await gate(w);for(let i=0;i<4;i++){const r=await fetch(u);if(r.status==429||r.status==418){await new Promise(x=>setTimeout(x,(+r.headers.get('retry-after')||5)*1000));continue}if(!r.ok)throw new Error(r.status);return r.json()}throw new Error('rate limit')}
+const base=P=>P.mk=='fut'?['https://fapi.binance.com/fapi/v1/']:['https://api.binance.com/api/v3/','https://data-api.binance.vision/api/v3/'];
+async function kl(sym,iv,n,P){let out=[],end=0;
+ while(out.length<n){const lim=Math.min(1000,n-out.length);let k=null,err;
+  for(const u of base(P)){try{k=await jf(`${u}klines?symbol=${sym}&interval=${iv}&limit=${lim}`+(end?`&endTime=${end}`:''),lim>=500?5:lim>=100?2:1);break}catch(e){err=e}}
+  if(!k)throw err;if(!k.length)break;out=k.map(mk).concat(out);end=k[0][0]-1;if(k.length<lim)break}
+ return out}
+const merge=(a,b)=>{const m=new Map(a.map(x=>[x.t,x]));b.forEach(x=>m.set(x.t,x));return[...m.values()].sort((x,y)=>x.t-y.t)};
+function agg(h){const g={};h.forEach(x=>{(g[Math.floor(x.t/MS['3h'])]??=[]).push(x)});
+ return Object.keys(g).sort((a,b)=>a-b).filter(k=>g[k].length==3).map(k=>{const c=g[k];return{t:k*MS['3h'],o:c[0].o,h:Math.max(...c.map(x=>x.h)),l:Math.min(...c.map(x=>x.l)),c:c[2].c,v:c.reduce((s,x)=>s+x.v,0)}})}
+async function load(sym,P,full){const d=D[sym]??={m15:[],h1:[],h2:[],h4:[],hT:0};
+ if(full||!d.m15.length){d.m15=await kl(sym,'15m',P.n15,P);d.h1=await kl(sym,'1h',700,P);if(P.tf2h)d.h2=await kl(sym,'2h',250,P);if(P.tf4h)d.h4=await kl(sym,'4h',250,P);d.hT=Date.now();return true}
+ if(Date.now()<d.m15[d.m15.length-1].t+9e5)return false;
+ d.m15=merge(d.m15,await kl(sym,'15m',5,P)).slice(-(P.n15+300));
+ if(Math.floor(Date.now()/36e5)!=Math.floor(d.hT/36e5)){d.h1=merge(d.h1,await kl(sym,'1h',5,P));if(P.tf2h)d.h2=merge(d.h2,await kl(sym,'2h',3,P));if(P.tf4h)d.h4=merge(d.h4,await kl(sym,'4h',3,P));d.hT=Date.now()}
+ return true}
+async function symbols(P){if(P.count=='custom')return P.syms;let j;
+ for(const u of base(P)){try{j=await jf(u+'ticker/24hr',80);break}catch(e){}}if(!j)throw new Error('فهرست ارزها دریافت نشد');
+ const bad=/(UP|DOWN|BULL|BEAR)USDT$|^(USDC|FDUSD|TUSD|USDP|EUR|AEUR|DAI|BUSD|USDE|XUSD|USD1)USDT$/;
+ const l=j.filter(x=>x.symbol.endsWith('USDT')&&!bad.test(x.symbol)&&+x.quoteVolume>3e5).sort((x,y)=>+y.quoteVolume-+x.quoteVolume).map(x=>x.symbol);
+ return P.count=='all'?l:l.slice(0,+P.count)}
+
+/* ---------- volume profile (as in the DGT indicator) ---------- */
+function profile(a,from,to,N,gp,sdt){let hi=-1e18,lo=1e18;for(let i=from;i<to;i++){hi=Math.max(hi,a[i].h);lo=Math.min(lo,a[i].l)}
+ const st=(hi-lo)/N||1e-9,vt=new Array(N).fill(0);
+ for(let i=from;i<to;i++){const b=a[i],rg=Math.max(b.h-b.l,1e-9),s=Math.max(0,Math.min(N-1,Math.floor((b.l-lo)/st))),e=Math.max(0,Math.min(N-1,Math.floor((b.h-lo)/st)));
+  for(let r=s;r<=e;r++){const pl=lo+r*st,ov=Math.min(b.h,pl+st)-Math.max(b.l,pl);vt[r]+=b.v*(s===e?1:Math.max(ov,0)/rg)}}
+ const mx=Math.max(...vt),poc=vt.indexOf(mx),noN=Math.floor(N*gp),g=[],sup=[],sup2=[];
+ for(let r=0;r<N;r++){let ok=true;for(let k=r-noN;k<r&&ok;k++)if(k>=0&&vt[r]>=vt[k])ok=false;for(let k=r+1;k<=r+noN&&ok;k++)if(k<N&&vt[r]>=vt[k])ok=false;if(ok)g.push(lo+(r+.5)*st)}
+ for(let r=poc+1;r<N;r++)if(vt[r]/mx<sdt&&(r==poc+1||vt[r-1]/mx>=sdt)){sup.push(lo+r*st);sup2.push(lo+(r+.5)*st)}
+ return{g,sup,sup2,h:st/2}}
+
+/* ---------- engine (method 2) ---------- */
+function run(sym,P){const d=D[sym],now=Date.now(),a=d.m15.filter(x=>x.t+9e5<=now),n=a.length,L=P.sw,N=P.len,slp=P.sl/100,tpp=P.tp/100,rk=P.risk/100;
+ const H={};P.tfs.forEach(tf=>H[tf]=(tf=='3h'?agg(d.h1):tf=='1h'?d.h1:d['h'+tf[0]]).filter(x=>x.t+MS[tf]<=now));
+ const ptr={},lv={};P.tfs.forEach(tf=>ptr[tf]=0);
+ const piv={};for(let j=L;j<n-L;j++){let h=1,l=1;for(let k=1;k<=L;k++){if(a[j].h<=a[j-k].h||a[j].h<a[j+k].h)h=0;if(a[j].l>=a[j-k].l||a[j].l>a[j+k].l)l=0}if(h||l)piv[j+L]={h:h?a[j].h:null,l:l?a[j].l:null}}
+ const ek=2/(P.ema+1),em=[],va=[];let e0=a.length?a[0].c:0,vs=0;for(let i=0;i<n;i++){e0=a[i].c*ek+e0*(1-ek);em.push(e0);vs+=a[i].v-(i>=20?a[i-20].v:0);va.push(vs/Math.min(i+1,20))}
+ const AT=[],TRv=[];{let q=0;for(let i=0;i<n;i++){const t_=i?Math.max(a[i].h-a[i].l,Math.abs(a[i].h-a[i-1].c),Math.abs(a[i].l-a[i-1].c)):a[i].h-a[i].l;q+=t_;if(i>=14)q-=TRv[i-14];TRv.push(t_);AT[i]=q/Math.min(i+1,14)}}
+ const cfm=(i,d)=>{const b=a[i],rg=Math.max(b.h-b.l,1e-9),body=(b.c-b.o)*d/rg,vr=b.v/(va[i-1]||1);return{body,vr,ok:(!P.cf||body>=P.cb)&&(!P.volmin||vr>=P.volmin)}};
+ const BA=(t,d)=>{const B=D.BTCUSDT&&D.BTCUSDT.m15;if(!B||B.length<110)return{al:'Neutral',m:0};let j=B.length-1;while(j>0&&B[j].t>t)j--;if(j<96)return{al:'Neutral',m:0};const m=(B[j].c/B[j-96].c-1)*100*d;return{al:m>.3?'Aligned':m<-.3?'Counter':'Neutral',m}};
+ let RFv=1;
+ let eq=P.cap,pos=null,pend=null,sh=null,sl_=null,tr=[],swp=null;
+ const fin=(p,i,px,all)=>{p.xt=a[i].t+9e5;p.xp=px;if(!p.open)p.pnl-=p.q*p.e*P.fee/100*2;p.ret=p.pnl/p.eq0;p.R=p.pnl/p.risk;p.status=p.open?'باز':p.k?(all?'TP4 ✓':'TP'+p.k+' → SL'):(p.pnl>0?'خروج سودده':'SL');p.why=p.R>0?[]:(()=>{const w=[],b_=i-p.ei;if(p.sA<1.2)w.push('Tight SL');if(b_<=3)w.push('Early Entry');if(p.vr<.7)w.push('Weak Volume');if(p.bal=='Counter')w.push('BTC Counter-Trend');if(p.body<.4)w.push('Low Momentum');if(p.mfe>=1)w.push('Exit Management');if(P.mode=='m2'&&b_<=6&&p.mfe<.5)w.push('Failed Breakout');if(!w.length)w.push(p.sA>=1.2?'Normal Volatility':'Unknown');return w})();eq+=p.pnl;pos=null};
+ const open=(dir,e,l,i,type,tfs,slo,tpo,meta)=>{let sl=slo||(dir>0?l*(1-slp):l*(1+slp));if(P.atrm&&AT[i]){const mn=P.atrm*AT[i];if(Math.abs(e-sl)<mn)sl=e-dir*mn}const dist=Math.abs(e-sl)/e;if(dist<.0005)return;
+  pos={id:sym+dir+a[i].t,sym,dir,e,sl,lv:l,ei:i,et:a[i].t+9e5,q:Math.min(eq*rk*RFv/dist/e,eq*P.lev/e),eq0:eq,k:0,pnl:0,rem:1,mfe:0,mae:0,r0:Math.abs(e-sl),type,tfs,tps:tpo||[1,2,3,4].map(k=>e*(1+dir*tpp*k))};pos.risk=pos.q*Math.abs(e-sl);Object.assign(pos,meta);tr.push(pos)};
+ const pv=Lx=>{const lo=[],hi=[];for(let j=Lx;j<n-Lx;j++){let h=1,l=1;for(let k=1;k<=Lx;k++){if(a[j].h<=a[j-k].h||a[j].h<a[j+k].h)h=0;if(a[j].l>=a[j-k].l||a[j].l>a[j+k].l)l=0}if(h)hi.push({i:j,c:j+Lx,p:a[j].h});if(l)lo.push({i:j,c:j+Lx,p:a[j].l})}return{lo,hi}};
+ let lm,lM,at=[];if(P.mode=='engine'){lm=pv(L);lM=pv(15);let s14=0;for(let i=0;i<n;i++){const tr_=i?Math.max(a[i].h-a[i].l,Math.abs(a[i].h-a[i-1].c),Math.abs(a[i].l-a[i-1].c)):a[i].h-a[i].l;s14+=tr_;if(i>=14)s14-=at.tr[i-14];(at.tr??=[]).push(tr_);at[i]=s14/Math.min(i+1,14)}}
+ const E0=()=>({st:0});let E=E0();const lastT={},bk=x=>Math.round(Math.log(x)/.004);
+ const mkTP=(e,risk,i)=>{const u=[];lm.hi.concat(lM.hi).filter(q=>q.c<=i&&q.i>=i-300&&q.p>e*1.003).map(q=>q.p).sort((x,y)=>x-y).forEach(p=>{if(!u.length||p>u[u.length-1]*1.004)u.push(p)});
+  const t=u.slice(0,3);while(t.length<3)t.push(e+risk*[1.5,2.5,3.5][t.length]);t.sort((x,y)=>x-y);t.push(Math.max(t[2]+(t[2]-e)*.5,e+risk*4));return t};
+ function eng(i){const b=a[i],pc=a[i-1].c;
+  if(E.st==0){const gl=[];for(const tf of P.tfs){const z=lv[tf];if(!z)continue;z.g.forEach(x=>{if(x<pc&&x>=b.l)gl.push({x,tf,h:z.h})})}
+   if(!gl.length)return;gl.sort((p,q)=>q.x-p.x);const g0=gl[0],ft=!(lastT[bk(g0.x)]>=i-200);gl.forEach(z=>lastT[bk(z.x)]=i);
+   const fl=lm.lo.filter(q=>q.c<=i&&q.i>=i-300).map(q=>({p:q.p,m:0})).concat(lM.lo.filter(q=>q.c<=i&&q.i>=i-300).map(q=>({p:q.p,m:1})));
+   const cd=fl.filter(q=>q.p<=g0.x*1.003&&q.p>=g0.x*.97&&b.l<q.p*.9997&&pc>q.p).sort((p,q)=>q.p-p.p);if(!cd.length)return;
+   const pl=cd[0],eqn=lm.lo.some(q=>q.c<=i&&q.i>=i-300&&q.p!==pl.p&&Math.abs(q.p-pl.p)/pl.p<.0015);
+   const lh=sh!=null&&sh>g0.x?sh:Math.max(...a.slice(Math.max(0,i-12),i).map(q=>q.h)),lo96=Math.min(...a.slice(Math.max(0,i-96),i).map(q=>q.l));
+   E={st:1,x:g0.x,h:g0.h,tf:[...new Set(gl.map(z=>z.tf))],type:pl.m?'Major':eqn?'Equal':'Swing',deep:b.l<g0.x-g0.h,ext:b.l,i0:i,ft,lh,htf:!!pl.m||b.l<lo96}}
+  if(E.st==1){E.ext=Math.min(E.ext,b.l);if(i-E.i0>P.sbars){E=E0();return}if(b.c>E.x){E.st=2;E.rc=i}else return}
+  if(E.st==2){if(i-E.rc>P.mssb||b.c<E.ext*(1-P.sbuf/100)){E=E0();return}
+   if(b.c>E.lh){const dp=b.c-b.o>=P.disp*at[i];let fv=null;for(let j=i;j>=Math.max(2,E.rc-1)&&!fv;j--)if(a[j].l>a[j-2].h)fv={lo:a[j-2].h,hi:a[j].l};
+    E.sc=20+(E.ft?10:0)+20+15+15+(dp?5:0)+(fv?5:0)+(b.v>1.2*va[i]?5:0)+(E.htf?5:0);E.dp=dp;E.fv=!!fv;E.ent=Math.min(fv?(fv.lo+fv.hi)/2:E.lh,b.c);E.st=3;E.m=i;
+    if(E.sc<P.minScore){E=E0();return}}
+   return}
+  if(E.st==3&&i>E.m){const sl=E.ext*(1-P.sbuf/100);if(i-E.m>P.fbars||b.c<sl){E=E0();return}
+   if(b.l<=E.ent){const e=Math.min(E.ent,b.o),risk=e-sl;if(risk/e<.0005||risk/e>.05){E=E0();return}
+    const tp=mkTP(e,risk,i);if((tp[1]-e)/risk<P.minrr){E=E0();return}
+    const plain=E.type=='Swing'&&!E.deep,rank=E.fv&&plain?1:plain?2:E.deep?3:E.type=='Equal'?4:5;
+    open(1,e,E.x,i,'Engine',E.tf,sl,tp,{sc:E.sc,grade:E.sc>=90?'A+':E.sc>=80?'A':'B',rank,ft:E.ft,fvg:E.fv,stype:E.type,deep:E.deep,dp:E.dp});E=E0()}}}
+ const lq=()=>({st:0});let Q=lq();
+ const fillQ=(i,e)=>{const d=Q.d,sl=d>0?Q.ext*(1-P.sbuf/100):Q.ext*(1+P.sbuf/100),dist=Math.abs(e-sl)/e;
+  if(dist>=.0005&&dist<=.06){const cv=Q.cv||cfm(i,d),bt=BA(a[i].t,d),sA=Math.max(Math.abs(e-sl),(P.atrm||0)*AT[i])/(AT[i]||1e-9);
+   const es=(P.mode=='m1'?10:20)+((d>0?e>em[i]:e<em[i])?15:0)+(cv.vr>=1?15:cv.vr>=.7?8:0)+(sA>=1.2?15:sA>=.8?8:0)+(cv.body>=.5?15:cv.body>=.3?8:0)+(bt.al=='Aligned'?15:bt.al=='Neutral'?8:0)+(cv.ok?5:0);
+   if(!(P.btcm=='block'&&bt.al=='Counter')&&!(P.minsc&&es<P.minsc)){RFv=P.btcm=='reduce'&&bt.al=='Counter'?P.btcr:1;open(d,e,Q.x,i,d>0?'Diamond Sweep':'Supply Sweep',Q.tf,sl,null,{sweepT:a[Q.i0].t,rcT:a[Q.rc].t,brkT:Q.bi!=null?a[Q.bi].t:null,brk:Q.brk,lvl:Q.x,lh:Q.h,ext:Q.ext,vr:cv.vr,body:cv.body,bal:bt.al,bm:bt.m,es,eg:es>=85?'A+':es>=70?'A':'B',sA});RFv=1}}Q=lq()};
+ function liq(i){const b=a[i],pc=a[i-1].c,m1=P.mode=='m1';
+  if(Q.st==0){const cl=[],cs=[];for(const tf of P.tfs){const z=lv[tf];if(!z)continue;z.g.forEach(x=>{if(x<pc&&b.l<x-z.h)cl.push({x,h:z.h,tf})});z.sup2.forEach(x=>{if(x>pc&&b.h>x+z.h)cs.push({x,h:z.h,tf})})}
+   if(!cl.length&&!cs.length)return;const d=cl.length?1:-1,arr=d>0?cl:cs,x0=d>0?Math.max(...arr.map(z=>z.x)):Math.min(...arr.map(z=>z.x)),rc12=a.slice(Math.max(0,i-12),i);
+   const brk=d>0?(sh!=null&&sh>x0?sh:Math.max(...rc12.map(q=>q.h))):(sl_!=null&&sl_<x0?sl_:Math.min(...rc12.map(q=>q.l)));
+   Q={st:1,d,x:x0,h:arr[0].h,tf:[...new Set(arr.map(z=>z.tf))],ext:d>0?b.l:b.h,i0:i,brk}}
+  if(Q.st==1){const d=Q.d;Q.ext=d>0?Math.min(Q.ext,b.l):Math.max(Q.ext,b.h);if(i-Q.i0>P.sbars){Q=lq();return}
+   if(d>0?b.c>Q.x:b.c<Q.x){const cv=m1?cfm(i,Q.d):null;if(m1&&!cv.ok)return;Q.rc=i;if(m1){Q.cv=cv;fillQ(i,b.c);return}Q.st=2}else return}
+  if(Q.st==2){const d=Q.d,sl=d>0?Q.ext*(1-P.sbuf/100):Q.ext*(1+P.sbuf/100);if(i-Q.rc>P.mssb||(d>0?b.c<sl:b.c>sl)){Q=lq();return}
+   if(d>0?b.c>Q.brk:b.c<Q.brk){const cv=cfm(i,d);if(!cv.ok)return;Q.cv=cv;Q.st=3;Q.bi=i}else return}
+  if(Q.st==3&&i>Q.bi){const d=Q.d,sl=d>0?Q.ext*(1-P.sbuf/100):Q.ext*(1+P.sbuf/100);if(i-Q.bi>P.fbars||(d>0?b.c<sl:b.c>sl)){Q=lq();return}
+   if(d>0?b.l<=Q.brk:b.h>=Q.brk)fillQ(i,d>0?Math.min(Q.brk,b.o):Math.max(Q.brk,b.o))}}
+ const openS=(l,low,i,tfs)=>{const e=a[i].c,sl=low*(1-P.sbuf/100);if((e-sl)/e>3*slp)return;open(1,e,l,i,'Sweep',tfs,sl)};
+ for(let i=1;i<n;i++){const b=a[i];if(piv[i]){if(piv[i].h!=null)sh=piv[i].h;if(piv[i].l!=null)sl_=piv[i].l}
+  for(const tf of P.tfs){const h=H[tf];let ch=0;while(ptr[tf]<h.length&&h[ptr[tf]].t+MS[tf]<=b.t){ptr[tf]++;ch=1}if(ch&&ptr[tf]>=N)lv[tf]=profile(h,ptr[tf]-N,ptr[tf],P.rows,P.nd/100,P.sdt/100)}
+  if(pos&&pos.ei<i){const p=pos,d_=p.dir,r0=p.r0;p.mfe=Math.max(p.mfe,(d_>0?b.h-p.e:p.e-b.l)/r0);p.mae=Math.max(p.mae,(d_>0?p.e-b.l:b.h-p.e)/r0);
+    if(d_>0?b.l<=p.sl:b.h>=p.sl){p.pnl+=p.q*p.rem*d_*(p.sl-p.e);p.rem=0;fin(p,i,p.sl,0)}
+    else{if(P.pxP&&!p.px&&p.mfe>=P.pxR){const f=Math.min(P.pxP/100,p.rem);p.pnl+=p.q*f*d_*P.pxR*r0;p.rem-=f;p.px=1}
+     while(pos&&p.k<4&&(d_>0?b.h>=p.tps[p.k]:b.l<=p.tps[p.k])){const f=Math.min(.25,p.rem);p.pnl+=p.q*f*d_*(p.tps[p.k]-p.e);p.rem-=f;p.k++;if(P.be&&p.k>=1)p.sl=p.e;if(p.k==4||p.rem<1e-9)fin(p,i,p.tps[p.k-1],p.k==4)}
+     if(pos){if(P.beR&&p.mfe>=P.beR){const bs=p.e*(1+d_*2*P.fee/100);if(d_>0?bs>p.sl:bs<p.sl)p.sl=bs}
+      if(P.trl!='none'&&p.mfe>=P.trR){const ns=P.trl=='atr'?(d_>0?b.h-P.trA*AT[i]:b.l+P.trA*AT[i]):(d_>0?sl_:sh);if(ns!=null&&(d_>0?ns>p.sl&&ns<b.c:ns<p.sl&&ns>b.c))p.sl=ns}}}}
+  if(pos)continue
+  if(P.mode=='engine'){eng(i);continue}
+  if(P.mode=='m1'||P.mode=='m2'){liq(i);continue}
+  const pc=a[i-1].c;
+  if(swp){swp.low=Math.min(swp.low,b.l);if(i-swp.i0>P.sbars)swp=null;else if(b.c>swp.lv&&(!P.vol||b.v>P.vol*va[i])){openS(swp.lv,swp.low,i,swp.tfs);swp=null}if(pos||swp)continue}
+  if(pend){const q=pend,d_=q.dir;
+   if(i-q.i0>P.exp||(d_>0?b.c<q.sl:b.c>q.sl))pend=null;
+   else if(q.st==0){if((d_>0?b.c>q.sw:b.c<q.sw)&&(!P.vol||b.v>P.vol*va[i])){if(P.pb)q.st=1;else{open(d_,b.c,q.lv,i,q.type,q.tfs);pend=null}}}
+   else if(d_>0?b.l<=q.sw:b.h>=q.sw){open(d_,q.sw,q.lv,i,q.type,q.tfs);pend=null}
+   if(pend||pos)continue}
+  const gl=[],sp=[];for(const tf of P.tfs){const z=lv[tf];if(!z)continue;z.g.forEach(x=>{if(x<pc&&x>=b.l&&x<=b.h)gl.push({x,tf,h:z.h})});z.sup.forEach(x=>{if(x>pc&&x>=b.l&&x<=b.h)sp.push({x,tf})})}
+  let dir=0,l0,ty,tfs;
+  if(gl.length){dir=1;l0=Math.max(...gl.map(z=>z.x));ty='Diamond';tfs=[...new Set(gl.map(z=>z.tf))]}
+  else if(P.short&&sp.length){dir=-1;l0=Math.min(...sp.map(z=>z.x));ty='Supply';tfs=[...new Set(sp.map(z=>z.tf))]}
+  if(dir&&P.trend&&(dir>0?b.c<=em[i]:b.c>=em[i]))dir=0;if(dir&&P.conf&&tfs.length<2)dir=0;
+  if(dir>0&&P.mode!='swing'){const s2=gl.filter(z=>b.l<z.x-z.h);if(s2.length){const l2=Math.max(...s2.map(z=>z.x)),t2=[...new Set(s2.map(z=>z.tf))];
+   if(!(P.conf&&t2.length<2)){if(b.c>l2){if(!P.vol||b.v>P.vol*va[i])openS(l2,b.l,i,t2)}else swp={lv:l2,low:b.l,i0:i,tfs:t2}}continue}}
+  if(P.mode=='sweep')continue;
+  if(!dir)continue;const sw=dir>0?sh:sl_;
+  if(sw!=null&&(dir>0?sw>l0:sw<l0))pend={dir,sw,lv:l0,sl:dir>0?l0*(1-slp):l0*(1+slp),st:0,i0:i,type:ty,tfs}}
+ if(pos){pos.open=1;pos.status=pos.k?'باز · TP'+pos.k:'باز'}
+ const out=[...new Map(tr.map(t=>[t.id,t])).values()];
+ return{trades:out,pend:pend&&{sym,dir:pend.dir,type:pend.type,tfs:pend.tfs,lv:pend.lv,sw:pend.sw,st:pend.st}}}
+
+/* ---------- stats ---------- */
+function stats(tr,P){const all=tr.filter(t=>!t.open),acc=[];
+ for(const t of [...tr].sort((x,y)=>x.et-y.et)){if(acc.filter(a=>a.open||a.xt>t.et).length<P.maxpos)acc.push(t)}
+ const cl=acc.filter(t=>!t.open).sort((x,y)=>x.xt-y.xt);let eq=P.cap,pk=eq,dd=0,reach=null;const c=[eq];
+ for(const t of cl){eq*=1+t.ret;c.push(eq);pk=Math.max(pk,eq);dd=Math.max(dd,(pk-eq)/pk);if(!reach&&eq>=P.tgt)reach=t.xt}
+ const wr=a=>a.length?fmt(a.filter(t=>t.ret>0).length/a.length*100,1)+'% ('+a.length+')':'—';
+ return{all,cl,eq,dd,reach,c,wr}}
+
+/* ---------- engine report ---------- */
+function engReport(A){const E=A.filter(t=>t.sc!=null);if(!E.length)return'';const n=E.length,W=E.filter(t=>t.R>0),Lz=E.filter(t=>t.R<=0),sum=a=>a.reduce((x,t)=>x+t.R,0),av=a=>a.length?sum(a)/a.length:0;
+ const gp=sum(W),gl=-sum(Lz),pf=gl>0?gp/gl:Infinity,g=(f)=>{const m={};E.forEach(t=>{(m[f(t)]??=[]).push(t)});return Object.entries(m).map(([k,a])=>`${k}: ${fmt(a.filter(t=>t.R>0).length/a.length*100,1)}% (${a.length}) · E=${fmt(av(a),2)}R`).join(' | ')};
+ const bs={};E.forEach(t=>bs[t.sym]=(bs[t.sym]||0)+t.R);const ss=Object.entries(bs).sort((x,y)=>y[1]-x[1]);
+ return`<div style="margin-top:10px;border-top:1px solid var(--bd);padding-top:8px"><b>گزارش موتور Stop-Hunt (فقط لانگ)</b>
+ <div class="k" style="margin-top:6px"><div><span>تعداد معاملات</span><b>${n}</b></div><div><span>Win Rate</span><b>${fmt(W.length/n*100,1)}%</b></div><div><span>Loss Rate</span><b>${fmt(Lz.length/n*100,1)}%</b></div>
+ <div><span>Expectancy (میانگین R)</span><b class="${av(E)>0?'w':'l'}">${fmt(av(E),2)}R</b></div><div><span>Profit Factor</span><b>${isFinite(pf)?fmt(pf,2):'∞'}</b></div>
+ <div><span>R:R واقعی (میانگین سود÷زیان)</span><b>${W.length&&Lz.length?fmt(av(W)/-av(Lz),2):'—'}</b></div><div><span>میانگین SL</span><b>${fmt(E.reduce((x,t)=>x+Math.abs(t.e-t.sl)/t.e,0)/n*100,2)}%</b></div><div><span>میانگین TP خورده</span><b>TP${fmt(E.reduce((x,t)=>x+t.k,0)/n,2)}</b></div></div>
+ <div style="font-size:12px;line-height:1.9">بهترین ارز: ${ss.slice(0,3).map(x=>x[0]+' '+fmt(x[1],1)+'R').join('، ')} · بدترین: ${ss.slice(-3).map(x=>x[0]+' '+fmt(x[1],1)+'R').join('، ')}<br>
+ First Touch: ${g(t=>t.ft?'بله':'خیر')}<br>نوع Sweep: ${g(t=>t.stype)}<br>FVG: ${g(t=>t.fvg?'با FVG':'بدون FVG')}<br>Deep Sweep: ${g(t=>t.deep?'عمیق':'عادی')}<br>درجه: ${g(t=>t.grade)}<br>رتبه ستاپ: ${g(t=>'R'+t.rank)}</div></div>`}
+
+/* ---------- UI ---------- */
+function renderAll(P){const res=Object.values(RES),tr=res.flatMap(r=>r.trades),S=stats(tr,P),A=S.all,n=A.length,w=A.filter(t=>t.ret>0).length;
+ const tcs=[0,1,2,3,4].map(k=>A.filter(t=>t.k==k).length);
+ const mn=Math.min(...S.c),mx=Math.max(...S.c,P.tgt),W=600,H=140,Y=v=>(H-(v-mn)/(mx-mn||1)*H).toFixed(1);
+ $('stats').innerHTML=`<div class="k"><div><span>وین‌ریت کل سیگنال‌ها</span><b>${n?fmt(w/n*100,1):0}%</b></div><div><span>تعداد معاملات بسته</span><b>${n}</b></div>
+ <div><span>موجودی از $${P.cap} (حداکثر ${P.maxpos} پوزیشن همزمان)</span><b class="${S.eq>=P.cap?'w':'l'}">$${fmt(S.eq)}</b></div><div><span>حداکثر افت</span><b>${fmt(S.dd*100,1)}%</b></div>
+ <div><span>رسیدن به $${P.tgt}</span><b>${S.reach?'بله':'خیر'}</b></div></div>
+ <div style="font-size:12px;color:var(--mu)">بیشترین TP: TP1=${tcs[1]} · TP2=${tcs[2]} · TP3=${tcs[3]} · TP4=${tcs[4]} · استاپ مستقیم=${tcs[0]}${S.reach?' · رسیدن به هدف: '+T(S.reach):''}</div>
+ <div style="font-size:12px;margin:6px 0">لانگ (Diamond): ${S.wr(A.filter(t=>t.dir>0))}${P.short?' · شورت (Supply): '+S.wr(A.filter(t=>t.dir<0)):' · شورت غیرفعال'}<br>
+ بر اساس TF سطح: ${P.tfs.map(tf=>tf+' → '+S.wr(A.filter(t=>t.tfs.includes(tf)))).join(' · ')}</div>
+ <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line x1="0" x2="${W}" y1="${Y(P.tgt)}" y2="${Y(P.tgt)}" stroke="var(--mu)" stroke-dasharray="4"/><polyline fill="none" stroke="var(--ac)" stroke-width="2" vector-effect="non-scaling-stroke" points="${S.c.map((v,i)=>(i/Math.max(S.c.length-1,1)*W).toFixed(1)+','+Y(v)).join(' ')}"/></svg>`+engReport(A);
+ $('dsh').innerHTML=dash(A,P);const rec=[...tr].sort((x,y)=>y.et-x.et).slice(0,15);
+ const pe=res.filter(r=>r.pend).slice(0,15).map(r=>`<div class="sg ${r.pend.dir>0?'L':'S'}">⏳ ${r.pend.sym} — ${r.pend.type} [${r.pend.tfs.join(',')}] سطح ${fmt(r.pend.lv,4)} · منتظر ${r.pend.st?'پولبک به':'شکست'} سوئینگ ${fmt(r.pend.sw,4)}</div>`).join('');
+ $('sig').innerHTML=pe+(rec.map(t=>`<div class="sg ${t.dir>0?'L':'S'}" style="cursor:pointer" onclick="showChart('${t.id}')"><b>${t.dir>0?'🟢 LONG':'🔴 SHORT'} ${t.sym}</b> · ${t.type} [${t.tfs.join(',')}] · ${T(t.et)} · <b>${t.status}</b>${t.ai?` · 🧠${fmt(t.ai.p*100,0)}%`:''}${t.sc!=null?` · ⭐${t.sc} ${t.grade} · ${t.stype}${t.deep?'+Deep':''}${t.fvg?'+FVG':''}`:''}<br>📈 برای چارت بزنید<br>Entry ${fmt(t.e,4)} · SL ${fmt(t.sl,4)} · TP ${t.tps.map(x=>fmt(x,4)).join(' / ')}</div>`).join('')||'هنوز سیگنالی نیست');
+ $('tr').innerHTML=`<table><tr><th>نماد</th><th>جهت</th><th>TF</th><th>ورود</th><th>قیمت</th><th>خروج</th><th>نتیجه</th><th>بازده %</th></tr>${[...A].sort((x,y)=>y.xt-x.xt).slice(0,150).map(t=>`<tr style="cursor:pointer" onclick="showChart('${t.id}')"><td>${t.sym}</td><td>${t.dir>0?'Long':'Short'}</td><td>${t.tfs.join(',')}</td><td>${T(t.et)}</td><td>${fmt(t.e,4)}</td><td>${T(t.xt)}</td><td>${t.status}</td><td class="${t.ret>0?'w':'l'}">${fmt(t.ret*100)}</td></tr>`).join('')||'<tr><td colspan=8>—</td></tr>'}</table>`}
+
+/* ---------- chart ---------- */
+function showChart(id){let t;for(const r of Object.values(RES)){t=r.trades.find(x=>x.id==id);if(t)break}if(!t)return;
+ const m=D[t.sym].m15,ix=T0=>m.findIndex(c=>c.t>=T0);let a0=t.sweepT?ix(t.sweepT):ix(t.et-9e5);if(a0<0)a0=m.length-1;
+ const s0=Math.max(0,a0-30),ee=t.xt?ix(t.xt-9e5):m.length-1,e0=Math.min(m.length-1,(ee<0?m.length-1:ee)+10),cs=m.slice(s0,e0+1),n=cs.length;
+ $('ch').hidden=false;$('cht').textContent=`${t.sym} ${t.dir>0?'LONG':'SHORT'} · ${t.type} [${t.tfs.join(',')}] · Entry ${fmt(t.e,4)} · SL ${fmt(t.sl,4)} · ${t.status}`;
+ const cv=$('cv'),c=cv.getContext('2d'),dp=window.devicePixelRatio||1,Wd=cv.clientWidth||340,Ht=320,css=getComputedStyle(document.documentElement),cl=k=>css.getPropertyValue(k).trim()||'#888';
+ cv.width=Wd*dp;cv.height=Ht*dp;c.scale(dp,dp);c.clearRect(0,0,Wd,Ht);
+ let hi=Math.max(...cs.map(x=>x.h),t.sl,t.e,t.tps[0],t.tps[1]),lo=Math.min(...cs.map(x=>x.l),t.sl,t.e);const pd=(hi-lo)*.06;hi+=pd;lo-=pd;
+ const Y=p=>8+(hi-p)/(hi-lo)*(Ht-24),bw=(Wd-72)/n,X=k=>4+(k+.5)*bw,ck=T0=>cs.findIndex(x=>x.t>=T0);
+ const line=(p,col,lab,dash)=>{if(p==null||p>hi||p<lo)return;c.strokeStyle=col;c.fillStyle=col;c.setLineDash(dash||[]);c.lineWidth=1.2;c.beginPath();c.moveTo(0,Y(p));c.lineTo(Wd-68,Y(p));c.stroke();c.setLineDash([]);c.font='10px sans-serif';c.textAlign='left';c.fillText(lab+' '+fmt(p,4),Wd-66,Y(p)+3)};
+ if(t.lvl){c.fillStyle='rgba(255,152,0,.18)';c.fillRect(0,Y(t.lvl+t.lh),Wd-68,Math.max(2,Y(t.lvl-t.lh)-Y(t.lvl+t.lh)))}
+ cs.forEach((x,k)=>{const up=x.c>=x.o;c.strokeStyle=c.fillStyle=up?cl('--up'):cl('--dn');c.lineWidth=1;c.beginPath();c.moveTo(X(k),Y(x.h));c.lineTo(X(k),Y(x.l));c.stroke();c.fillRect(X(k)-bw*.35,Math.min(Y(x.o),Y(x.c)),bw*.7,Math.max(1,Math.abs(Y(x.o)-Y(x.c))))});
+ line(t.lvl,'#ff9800',t.dir>0?'Diamond':'Supply',[2,3]);if(t.brk)line(t.brk,cl('--mu'),'Break',[2,3]);line(t.e,cl('--ac'),'Entry');line(t.sl,'#e5484d','SL',[6,3]);t.tps.forEach((p,k)=>line(p,'#12a594','TP'+(k+1),[4,3]));
+ const mk=(T0,lab,up)=>{if(!T0)return;const k=ck(T0);if(k<0)return;const x=cs[k];c.fillStyle=cl('--tx');c.font='bold 11px sans-serif';c.textAlign='center';c.fillText(lab,X(k),up?Y(x.h)-5:Y(x.l)+13)};
+ mk(t.sweepT,'S',t.dir<0);mk(t.rcT,'R',t.dir<0);mk(t.brkT,'B',t.dir<0);mk(t.et-9e5,'E',t.dir<0);if(t.xt)mk(t.xt-9e5,'X',t.dir>0)}
+
+/* ---------- notifications ---------- */
+function beep(){try{const c=new AudioContext(),o=c.createOscillator();o.frequency.value=880;o.connect(c.destination);o.start();o.stop(c.currentTime+.25)}catch(e){}}
+const tgs=(m,ok)=>{const e=$('tgs');if(e){e.textContent='تلگرام · '+new Date().toLocaleTimeString('en-GB')+' · '+m;e.style.color=ok?'var(--up)':'var(--dn)'}};
+async function tg(text,P){
+ if(!P.tgt_||!P.tgc){tgs('⚠️ Token یا Chat ID خالی است');return false}
+ try{const r=await fetch(`https://api.telegram.org/bot${P.tgt_.trim()}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:P.tgc.trim(),text})});const j=await r.json();
+  if(j.ok){tgs('✅ پیام ارسال شد',1);return true}
+  const d=j.description||'خطا';let h='';
+  if(/chat not found/i.test(d))h=' ← Chat ID اشتباه است. نام کاربری بات Chat ID نیست. در تلگرام به بات /start بزنید و بعد دکمه «پیدا کردن Chat ID» را بزنید.';
+  else if(/bots can't send messages to bots/i.test(d))h=' ← این Chat ID مربوط به یک بات است؛ باید Chat ID خودتان (عدد) یا کانال/گروه باشد.';
+  else if(/unauthorized|not found/i.test(d))h=' ← Token اشتباه یا باطل شده است.';
+  else if(/forbidden/i.test(d))h=' ← بات اجازه ارسال ندارد (به بات /start بزنید یا آن را ادمین کانال/گروه کنید).';
+  tgs('❌ '+d+h);return false}
+ catch(e){tgs('❌ به تلگرام وصل نشد (VPN را روشن کنید و فایل را در Chrome باز کنید): '+e.message);return false}}
+function notify(title,body,P){beep();try{if(Notification.permission=='granted')new Notification(title,{body})}catch(e){}tg(title+'\n'+body,P)}
+/* آمار ۱۰۰ معامله بسته‌شده اخیر (بعد از فیلتر AI) */
+const closedAll=()=>Object.values(RES).flatMap(r=>r.trades).filter(t=>!t.open&&t.xt).sort((x,y)=>x.xt-y.xt);
+function sum100(cl){const n=cl.length,k=j=>cl.filter(t=>t.k>=j).length;return{n,w:cl.filter(t=>t.ret>0).length,k1:k(1),k2:k(2),k3:k(3),k4:k(4),sl:cl.filter(t=>t.k==0).length}}
+const pc=(a,n)=>n?fmt(a/n*100,0)+'%':'—';
+function rep100(cl,title){const s=sum100(cl.slice(-100));
+ return `${title}\nوین‌ریت: ${pc(s.w,s.n)} (${s.w} برد از ${s.n})\nTP1: ${s.k1} (${pc(s.k1,s.n)})\nTP2: ${s.k2} (${pc(s.k2,s.n)})\nTP3: ${s.k3} (${pc(s.k3,s.n)})\nTP4: ${s.k4} (${pc(s.k4,s.n)})\nاستاپ مستقیم (بدون TP): ${s.sl} (${pc(s.sl,s.n)})`}
+/* ذخیره‌ی سیگنال‌های ارسال‌شده تا بعد از رفرش دوباره ارسال نشوند */
+let SENT={};try{SENT=JSON.parse(localStorage.getItem('vpsent')||'{}')}catch(e){}
+const sentSave=()=>{try{const n=Date.now();Object.keys(SENT).forEach(k=>{if(n-SENT[k]>864e5)delete SENT[k]});localStorage.setItem('vpsent',JSON.stringify(SENT))}catch(e){}};
+const FRESH=30*60e3; /* فقط سیگنالی که ورودش در ۳۰ دقیقه اخیر بوده */
+function check(tr,P,silent){const now=Date.now();
+ for(const t of tr){const key=t.status,old=seen[t.id];
+  if(old===undefined){seen[t.id]=key;
+   if(t.et>=now-FRESH&&now-t.et>=0&&!SENT[t.id]){SENT[t.id]=now;sentSave();const s=sum100(closedAll().slice(-100));
+    notify(`${t.dir>0?'🟢 LONG':'🔴 SHORT'} ${t.sym}`,`${t.type} [${t.tfs.join(',')}]${t.ai?'\n🧠 احتمال برد '+fmt(t.ai.p*100,0)+'%':''}\nEntry ${fmt(t.e,4)}\nSL ${fmt(t.sl,4)}\nTP ${t.tps.map(x=>fmt(x,4)).join(' / ')}\n\n📊 وین‌ریت ۱۰۰ معامله اخیر: ${pc(s.w,s.n)} (${s.w}/${s.n})`,P)}}
+  else if(old!==key){seen[t.id]=key;if(SENT[t.id])notify(`${t.sym} ${t.dir>0?'Long':'Short'}: ${key}`,`Entry ${fmt(t.e,4)}`,P)}}}
+/* هر ۱۰۰ معامله‌ی جدیدِ بسته‌شده → گزارش به تلگرام */
+let MS_={cnt:0,ids:[],t0:0};try{Object.assign(MS_,JSON.parse(localStorage.getItem('vpms')||'{}'))}catch(e){}
+if(!MS_.t0)MS_.t0=Date.now();const MSET=new Set(MS_.ids);
+function milestone(P){const cl=closedAll();let ch=0;
+ for(const t of cl.filter(t=>t.xt>=MS_.t0&&!MSET.has(t.id))){MSET.add(t.id);MS_.cnt++;ch=1;
+  if(MS_.cnt%100==0)tg(rep100(cl.filter(x=>x.xt<=t.xt),`📊 گزارش ${MS_.cnt} معامله‌ی بسته‌شده (آمار ۱۰۰ معامله اخیر)`),P)}
+ if(ch)try{MS_.ids=[...MSET].slice(-3000);localStorage.setItem('vpms',JSON.stringify(MS_))}catch(e){}}
+$('mr').onclick=()=>{const cl=closedAll();if(!cl.length){tgs('هنوز معامله بسته‌شده‌ای نیست');return}tg(rep100(cl,'📊 گزارش ۱۰۰ معامله اخیر'),cfg())};
+$('gid').onclick=async()=>{const P=cfg();if(!P.tgt_){tgs('اول Token را وارد کنید');return}
+ try{const j=await(await fetch(`https://api.telegram.org/bot${P.tgt_.trim()}/getUpdates`)).json();
+  if(!j.ok){tgs('❌ '+(j.description||'خطا'));return}
+  const u=[...j.result].reverse().map(x=>(x.message||x.channel_post||x.my_chat_member||{}).chat).find(Boolean);
+  if(!u){tgs('پیامی پیدا نشد. در تلگرام به بات پیام /start بدهید (یا در کانال/گروه پیامی بفرستید) و دوباره بزنید.');return}
+  document.querySelector('[data-k=tgc]').value=String(u.id);tgs('✅ Chat ID پیدا شد: '+u.id+' ('+(u.username||u.title||u.first_name||'')+') — «تست اعلان» را بزنید',1)}
+ catch(e){tgs('❌ به تلگرام وصل نشد (VPN): '+e.message)}};
+$('nt').onclick=async()=>{try{st('وضعیت اعلان: '+await Notification.requestPermission())}catch(e){st('مرورگر اعلان را پشتیبانی نمی‌کند')}};
+$('tt').onclick=()=>notify('تست اعلان','اعلان‌ها کار می‌کنند ✅',cfg());
+
+/* ---------- optimizer ---------- */
+const mt=a=>{const n=a.length;return{n,wr:n?a.filter(t=>t.ret>0).length/n:0,tp2:n?a.filter(t=>t.k>=2).length/n:0,avg:n?a.reduce((x,t)=>x+t.ret,0)/n:0}};
+const met=a=>{const n=a.length,W=a.filter(t=>t.R>0),L=a.filter(t=>t.R<=0),gp=W.reduce((s,t)=>s+t.R,0),gl=-L.reduce((s,t)=>s+t.R,0);let c=0,pk=0,dd=0;[...a].sort((x,y)=>x.xt-y.xt).forEach(t=>{c+=t.R;pk=Math.max(pk,c);dd=Math.max(dd,pk-c)});const av=f=>n?a.reduce((s,t)=>s+(f(t)||0),0)/n:0;
+ return{n,wr:n?W.length/n:0,pf:gl>0?gp/gl:gp>0?99:0,ex:n?(gp-gl)/n:0,aw:W.length?gp/W.length:0,al:L.length?-gl/L.length:0,tr:gp-gl,dd,mfe:av(t=>t.mfe),mae:av(t=>t.mae)}};
+function dash(A,P){if(!A.length)return'—';const row=(k,a)=>{const m=met(a);return`<tr><td>${k}</td><td>${m.n}</td><td>${fmt(m.wr*100,1)}%</td><td>${fmt(m.pf,2)}</td><td class="${m.ex>0?'w':'l'}">${fmt(m.ex,2)}</td><td>${fmt(m.aw,2)}</td><td>${fmt(m.al,2)}</td><td>${fmt(m.tr,1)}</td><td>${fmt(m.dd,1)}</td><td>${fmt(m.mfe,2)}</td><td>${fmt(m.mae,2)}</td></tr>`};
+ const gr=(t,f)=>{const o={};A.forEach(x=>{const k=f(x);if(k!=null)(o[k]??=[]).push(x)});return Object.entries(o).sort().map(([k,a])=>row(t+' '+k,a)).join('')},bk=(x,c)=>x==null?null:bkt(x,c);
+ const rs={};A.forEach(t=>(t.why||[]).forEach(w=>rs[w]=(rs[w]||0)+1));
+ return`<table><tr><th>گروه</th><th>n</th><th>Win</th><th>PF</th><th>Exp(R)</th><th>AvgWin</th><th>AvgLoss</th><th>TotalR</th><th>MaxDD(R)</th><th>MFE</th><th>MAE</th></tr>${row('کل',A)}${gr('SL/ATR',t=>bk(t.sA,[1.2,1.5,2.5]))}${gr('Volume',t=>bk(t.vr,[.6,1,1.6]))}${gr('BTC',t=>t.bal)}${gr('Score',t=>t.es!=null?bk(t.es,[60,70,85]):null)}${gr('Grade',t=>t.eg)}${P.tfs.map(tf=>row('TF '+tf,A.filter(t=>t.tfs.includes(tf)))).join('')}${gr('جهت',t=>t.dir>0?'Long':'Short')}</table><div style="font-size:12px;margin-top:6px">علت ضررها: ${Object.entries(rs).sort((x,y)=>y[1]-x[1]).map(x=>x[0]+' '+x[1]).join(' · ')||'—'}</div>`}
+const AX=[['atrm',[0,1.2,1.3,1.5]],['volmin',[0,.6,.8,1,1.2]],['btcm',['allow','reduce','block']],['cf',[0,1]],['beR',[0,1,1.5]],['pxP',[0,25,50]],['trl',['none','atr','swing']],['trR',[1,1.5,2]],['trA',[1.5,2,3]],['minsc',[0,60,70,80]]];
+async function optimize(){const P=cfg(),sy=Object.keys(D).filter(k=>D[k].m15.length>0),o=$('opt');
+ if(!sy.length){o.textContent='ابتدا «شروع زنده» را بزنید و صبر کنید داده بارگذاری شود (برای نتیجه معتبر ۴۰۰۰ تا ۵۰۰۰ کندل ۱۵م).';return}
+ let t0=1e18,t1=0;sy.forEach(k=>{const m=D[k].m15;t0=Math.min(t0,m[0].t);t1=Math.max(t1,m[m.length-1].t)});const c1=t0+(t1-t0)*.5,c2=t0+(t1-t0)*.7,KEEP=.6;
+ const ev=async P2=>{let tr=[];for(const k of sy)tr=tr.concat(run(k,P2).trades.filter(t=>!t.open));await new Promise(r=>setTimeout(r,0));return{is:met(tr.filter(t=>t.et<c1)),va:met(tr.filter(t=>t.et>=c1&&t.et<c2)),oo:met(tr.filter(t=>t.et>=c2))}};
+ const P0={...P,atrm:0,volmin:0,btcm:'allow',cf:0,beR:0,pxP:0,trl:'none',minsc:0},B=await ev(P0);let cur={...P0},cr=B,k=0;const tot=AX.reduce((s,x)=>s+x[1].length,0),log=[];
+ const bt=(x,y,z)=>x.n>=z.n*KEEP&&x.ex>y.ex&&x.pf>=y.pf&&x.dd<=y.dd;
+ for(const[key,vals]of AX){for(const v of vals){o.textContent=`⏳ ${++k}/${tot} · ${key}=${v}`;if(cur[key]===v||((key=='trR'||key=='trA')&&cur.trl=='none'))continue;
+  const r=await ev({...cur,[key]:v});if(bt(r.is,cr.is,B.is)&&bt(r.va,cr.va,B.va)){cur={...cur,[key]:v};cr=r;log.push(key+'='+v)}}}
+ const ok=cr.oo.n>=B.oo.n*KEEP&&cr.oo.ex>=B.oo.ex&&cr.oo.pf>=B.oo.pf&&cr.oo.dd<=B.oo.dd&&log.length>0;
+ const p=(x,d=2)=>fmt(x,d),M=[['Trades',m=>m.n],['Win Rate %',m=>p(m.wr*100,1)],['Profit Factor',m=>p(m.pf)],['Expectancy R',m=>p(m.ex)],['Avg Win R',m=>p(m.aw)],['Avg Loss R',m=>p(m.al)],['Total R',m=>p(m.tr,1)],['Max DD R',m=>p(m.dd,1)]];
+ let h=`<table><tr><th>معیار</th><th>IS قبل</th><th>IS بعد</th><th>Val قبل</th><th>Val بعد</th><th>OOS قبل</th><th>OOS بعد</th></tr>${M.map(([n,f])=>`<tr><td>${n}</td>${['is','va','oo'].map(s=>`<td>${f(B[s])}</td><td>${f(cr[s])}</td>`).join('')}</tr>`).join('')}</table><div style="margin-top:6px">حذف‌شده توسط فیلترهای جدید: IS ${B.is.n-cr.is.n} · Val ${B.va.n-cr.va.n} · OOS ${B.oo.n-cr.oo.n}<br>تغییرهای پذیرفته‌شده در Train+Val: ${log.join(' , ')||'هیچ'}</div>`;
+ if(ok){for(const kk of ['atrm','volmin','btcm','cf','beR','pxP','trl','trR','trA','minsc']){const e=document.querySelector(`[data-k=${kk}]`);e.value=cur[kk]}
+  const P2=cfg();Object.keys(RES).forEach(q=>{RES[q]=run(q,P2);bpost(RES[q],P2)});renderAll(P2);h=`<b class="w">✅ در داده‌ی OOS (که برای بهینه‌سازی استفاده نشد) Expectancy و PF بهتر شد و Drawdown بدتر نشد؛ اعمال شد.</b>`+h}
+ else h=`<b class="l">❌ تغییری در OOS تأیید نشد (Expectancy/PF/DD یا تعداد معاملات)؛ تنظیمات عوض نشد.</b>`+h;
+ o.innerHTML=h}
+$('op').onclick=optimize;
+/* ---------- live loop ---------- */
+let RES={},SYMS=[],lastErr='';
+async function cycle(full){if(busy)return;busy=true;const P=cfg();
+ try{localStorage.setItem('vpcfg',JSON.stringify(Object.fromEntries([...Q('[data-k]')].map(e=>[e.dataset.k,e.type=='checkbox'?e.checked:e.value]))))}catch(e){}
+ try{if(full||!SYMS.length){st('⏳ دریافت فهرست ارزها...');SYMS=await symbols(P)}
+  try{await load('BTCUSDT',P,false)}catch(e){}
+  let done=0,errs=0;const q=[...SYMS],tot=SYMS.length;
+  const worker=async()=>{while(q.length){const s=q.shift();
+   try{const fresh=!D[s],silent=!RES[s],up=await load(s,P,fresh);if(up||!RES[s]){RES[s]=run(s,P);bpost(RES[s],P);check(RES[s].trades,P,silent)}}catch(e){errs++;lastErr=e.message}
+   done++;if(done%5==0||!q.length){st(`⏳ بارگذاری و تحلیل ${done}/${tot} ارز...`);renderAll(P)}}};
+  await Promise.all([1,2,3].map(worker));await brainCycle(P);milestone(P);
+  if(errs==tot)throw new Error(lastErr);
+  renderAll(P);st(`✅ ${tot-errs} ارز زیر نظر · آخرین بروزرسانی ${new Date().toLocaleTimeString('en-GB')}${errs?' · '+errs+' ارز خطا داشت':''}`)}
+ catch(e){st('❌ اتصال به Binance برقرار نشد ('+e.message+'). ۱) فایل را در مرورگر واقعی (Chrome) باز کنید، نه پیش‌نمایش داخل Claude. ۲) VPN را روشن کنید. ۳) بازار Spot/Futures را عوض کنید.')}
+ busy=false}
+$('go').onclick=()=>{D={};RES={};SYMS=[];seen={};clearInterval(timer);cycle(true);timer=setInterval(()=>cycle(false),2e4)};
+/* ---------- AI brain: online learner + autopsy + self-tuning ---------- */
+const bkt=(x,a,u='')=>{const i=a.findIndex(y=>x<y);return i<0?'>'+a[a.length-1]+u:i?a[i-1]+'…'+a[i]+u:'<'+a[0]+u};
+const sg=z=>1/(1+Math.exp(-Math.max(-30,Math.min(30,z))));
+const BR=Object.assign({W:{},S:{},n:0,seen:[],pred:[],pm:{},rl:[],au:[],jr:[],lg:[],thr:0,ck:null,block:{},ctx:{},lt:0},(()=>{try{return JSON.parse(localStorage.getItem('vpbrain')||'{}')}catch(e){return{}}})());
+const BSEEN=new Set(BR.seen);
+const bsave=()=>{try{BR.seen=[...BSEEN].slice(-6000);const k=Object.keys(BR.pm);if(k.length>6000)k.slice(0,k.length-6000).forEach(x=>delete BR.pm[x]);localStorage.setItem('vpbrain',JSON.stringify(BR))}catch(e){}};
+const TG={quick:'استاپ در ≤۳ کندل خورد (ورود زودهنگام یا شکار مجدد)',gave:'قیمت ≥۱R به نفع رفت و برگشت (نیاز به بریک‌ایون/خروج پله‌ای)',tight:'SL کمتر از ۱.۲×ATR بود (داخل نویز)',btcA:'خلاف جهت BTC بود',lowv:'حجم کندل قبل از ورود ضعیف بود',noise:'الگوی خاصی نبود؛ نوسان عادی'};
+function bfeat(t){const m=D[t.sym]&&D[t.sym].m15,i=t.ei;if(!m||!m[i]||i<30)return null;
+ let s=0,v=0;for(let k=i-14;k<i;k++)s+=Math.max(m[k].h-m[k].l,Math.abs(m[k].h-m[k-1].c),Math.abs(m[k].l-m[k-1].c));
+ for(let k=i-21;k<i-1;k++)v+=m[k].v;const atr=s/14||1e-9,sA=Math.abs(t.e-t.sl)/atr,vr=m[i-1].v/((v/20)||1),tr=(m[i-1].c/m[Math.max(0,i-97)].c-1)*100*t.dir,h=new Date(t.et).getUTCHours(),h4=Math.floor(h/4)*4;
+ const f=['ty:'+t.type,'جهت:'+(t.dir>0?'Long':'Short'),'نوسان ATR:'+bkt(atr/t.e*100,[.3,.6,1,1.8],'%'),'SL÷ATR:'+bkt(sA,[.8,1.5,2.5,4],'x'),'حجم قبل ورود:'+bkt(vr,[.6,1,1.6,2.5],'x'),'تعداد TF:'+t.tfs.length,'ارز:'+t.sym,'ساعت UTC:'+h4+'-'+(h4+4),'همسو با روند ۲۴س ارز:'+bkt(tr,[-2,0,2],'%')];
+ if(t.sweepT&&t.lvl){f.push('عمق Sweep:'+bkt(Math.abs(t.lvl-t.ext)/t.lvl*100,[.15,.4,1],'%'));f.push('فاصله Sweep تا ورود:'+bkt((t.et-t.sweepT)/9e5,[3,6,12],' کندل'))}
+ if(t.sc!=null)f.push('امتیاز:'+bkt(t.sc,[75,85,95]));
+ let btc=null;const B=D.BTCUSDT&&D.BTCUSDT.m15;if(B&&B.length>110){let j=B.length-1;while(j>0&&B[j].t>=m[i].t)j--;if(j>=96&&m[i].t-B[j].t<36e5){btc=(B[j].c/B[j-96].c-1)*100*t.dir;f.push('همسو با BTC ۲۴س:'+bkt(btc,[-1.5,-.3,.3,1.5],'%'))}}
+ return{f,sA,vr,btc}}
+function bauto(t,ft,y){const m=D[t.sym].m15,i=t.ei;let xi=m.findIndex(c=>c.t>=t.xt-9e5);if(xi<0)xi=m.length-1;const r=Math.abs(t.e-t.sl),sl=m.slice(i+1,xi+1),mf=sl.length?(t.dir>0?Math.max(...sl.map(c=>c.h))-t.e:t.e-Math.min(...sl.map(c=>c.l)))/r:0,bars=xi-i,tg=[];
+ if(!y){if(bars<=3)tg.push('quick');if(mf>=1)tg.push('gave');if(ft.sA<1.2)tg.push('tight');if(ft.btc!=null&&ft.btc<-.3)tg.push('btcA');if(ft.vr<.7)tg.push('lowv');if(!tg.length)tg.push('noise');BR.rl.push(tg);if(BR.rl.length>40)BR.rl.shift()}
+ BR.au.push(`${y?'✅':'❌'} ${t.sym} ${t.dir>0?'Long':'Short'} ${fmt(t.R,2)}R · ${y?'قیمت تا '+fmt(mf,1)+'R به نفع رفت':tg.map(k=>TG[k]).join('؛ ')}`);if(BR.au.length>30)BR.au.shift()}
+let BX=[],BXD=0;
+function blearn(){const all=Object.values(RES).flatMap(r=>r.raw||r.trades).concat(BX),nw=all.filter(t=>!t.open&&t.xt&&!BSEEN.has(t.id)).sort((x,y)=>x.xt-y.xt);let c=0;
+ for(const t of nw){BSEEN.add(t.id);const ft=bfeat(t);if(!ft)continue;const y=t.R>0?1:0,ks=ft.f,W=BR.W,p=sg((W.bias||0)+ks.reduce((s,k)=>s+(W[k]||0),0)),lr=Math.max(.03,.2/Math.sqrt(1+BR.n/25))/Math.sqrt(ks.length);
+  W.bias=(W.bias||0)+lr*(y-p)*2;ks.forEach(k=>W[k]=(W[k]||0)+lr*((y-p)-.03*(W[k]||0)));
+  ks.forEach(k=>{const s=BR.S[k]??={n:0,w:0,R:0};s.n++;s.w+=y;s.R+=t.R});
+  BR.pred.push({p,y,R:t.R});if(BR.pred.length>600)BR.pred.shift();BR.pm[t.id]=p;BR.n++;c++;bauto(t,ft,y)}
+ return c}
+function bthr(){const a=BR.pred,wr=cfg().aiGoal!='r';BR.thr=0;if(BR.n<25||a.length<25)return;
+ const R=q=>q.reduce((s,x)=>s+x.R,0)/q.length,M=q=>wr?q.filter(x=>x.R>0).length/q.length:R(q);let bv=M(a);const b0=bv;
+ for(let th=.35;th<=.7;th+=.025){const s=a.filter(x=>x.p>=th);if(s.length<Math.max(20,a.length*.3))continue;const v=M(s);if(v>bv+(wr?.02:.05)&&v>b0+(wr?.02:.05)&&R(s)>0){bv=v;BR.thr=+th.toFixed(3)}}}
+function btune(P){if(!P.aiTune)return false;const set=(k,v)=>{const e=document.querySelector(`[data-k=${k}]`);e.type=='checkbox'?e.checked=!!v:e.value=v},av=a=>a.length?a.reduce((s,x)=>s+x.R,0)/a.length:0,J=s=>{BR.jr.push(T(Date.now())+' · '+s);if(BR.jr.length>30)BR.jr.shift()};
+ if(BR.ck){const d=BR.n-BR.ck.n;if(d<20)return false;const now=av(BR.pred.slice(-d)),k=BR.ck;BR.ck=null;if(now<k.base-.1){set(k.k,k.old);BR.block[k.k]=BR.n;J(`↩️ تغییر ${k.k} به ${k.nv} بدتر شد (${fmt(k.base,2)}R → ${fmt(now,2)}R)؛ برگشت به ${k.old}`);return true}J(`✔️ تغییر ${k.k} تأیید شد (${fmt(k.base,2)}R → ${fmt(now,2)}R)`);return false}
+ if(BR.n<25||BR.n-BR.lt<15||BR.rl.length<15)return false;const sh=g=>BR.rl.filter(t=>t.includes(g)).length/BR.rl.length,ok=k=>!(BR.block[k]&&BR.n-BR.block[k]<60);
+ const ch=(k,ov,nv,why)=>{BR.ck={k,old:ov,nv,n:BR.n,base:av(BR.pred.slice(-20))};BR.lt=BR.n;set(k,nv);J(`🔧 ${k}: ${ov} → ${nv} (${why})`);return true};
+ if(sh('tight')>=.45&&P.sbuf<.6&&ok('sbuf'))return ch('sbuf',P.sbuf,+(P.sbuf+.1).toFixed(2),'بیشتر ضررها استاپِ داخل نویز بود');
+ if(sh('gave')>=.35&&!P.be&&ok('be'))return ch('be',0,1,'قیمت بارها ≥۱R رفت و برگشت');
+ return false}
+function bpost(r,P){r.raw=r.raw||r.trades;r.trades=[];r.shadow=[];
+ for(const t of r.raw){const ft=bfeat(t);t.ai=null;if(ft){const W=BR.W,ct=ft.f.map(k=>[k,W[k]||0]),z=(W.bias||0)+ct.reduce((s,x)=>s+x[1],0),pm=BR.pm[t.id],p=pm!=null?pm:sg(z);
+  t.ai={p,top:ct.sort((x,y)=>Math.abs(y[1])-Math.abs(x[1])).slice(0,3),veto:!!(P.aiOn&&BR.thr&&BR.n>=25&&p<BR.thr)}}
+  (t.ai&&t.ai.veto?r.shadow:r.trades).push(t)}}
+async function bctx(){if(Date.now()-(BR.ctx.t||0)<6e5)return;const g=async u=>{try{const c=new AbortController();setTimeout(()=>c.abort(),6000);return await(await fetch(u,{signal:c.signal})).json()}catch(e){return null}};
+ const[f,gl,tr,fr,ls]=await Promise.all([g('https://api.alternative.me/fng/?limit=1'),g('https://api.coingecko.com/api/v3/global'),g('https://api.coingecko.com/api/v3/search/trending'),g('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT'),g('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=1h&limit=1')]);
+ const d=gl&&gl.data;BR.ctx={t:Date.now(),fng:f&&f.data?+f.data[0].value:null,dom:d?d.market_cap_percentage.btc:null,chg:d?d.market_cap_change_percentage_24h_usd:null,tr:tr&&tr.coins?tr.coins.slice(0,5).map(x=>x.item.symbol):[],fund:fr&&fr.lastFundingRate!=null?+fr.lastFundingRate*100:null,ls:ls&&ls[0]?+ls[0].longShortRatio:null}}
+function brainRender(P){const el=$('ai');if(!el)return;const n=BR.n,c=BR.ctx||{},A=BR.pred.slice(-100),av=a=>a.length?a.reduce((s,x)=>s+x.R,0)/a.length:0,hi=A.filter(x=>x.p>=.5),lo=A.filter(x=>x.p<.5),res=Object.values(RES);
+ const mood=c.fng==null?'':c.fng<25?'ترس شدید':c.fng<45?'ترس':c.fng<55?'خنثی':c.fng<75?'طمع':'طمع شدید';
+ const E=Object.entries(BR.S).filter(([k,s])=>s.n>=8).map(([k,s])=>({k,n:s.n,wr:s.w/s.n,e:s.R/s.n})),ln=x=>`<div>• ${x.k} — ${fmt(x.wr*100,0)}٪ برد · ${fmt(x.e,2)}R (${x.n})</div>`;
+ const bad=E.filter(x=>x.e<0).sort((x,y)=>x.e-y.e).slice(0,4),good=E.filter(x=>x.e>0).sort((x,y)=>y.e-x.e).slice(0,4),cnt={};BR.rl.forEach(t=>t.forEach(g=>cnt[g]=(cnt[g]||0)+1));
+ const sh=res.flatMap(r=>r.shadow||[]).filter(t=>!t.open),kp=res.flatMap(r=>r.trades).filter(t=>!t.open),live=res.flatMap(r=>(r.raw||r.trades).filter(t=>t.open&&t.ai)).slice(0,8);
+ let h=`<div><b>${n<25?`🌱 فاز یادگیری ${n}/25 — فعلاً فقط مشاهده می‌کنم و چیزی را رد نمی‌کنم.`:`🧠 فعال · ${n} معامله آموخته · ${BR.thr?'آستانهٔ خودکار احتمال برد: '+fmt(BR.thr*100,1)+'٪':'هنوز هیچ فیلتری سودمند ثابت نشده'}`}</b></div>`;
+ if(c.t)h+=`<div style="color:var(--mu)">🌍 ${c.fng!=null?'ترس/طمع '+c.fng+' ('+mood+')':''}${c.dom!=null?' · دامیننس BTC '+fmt(c.dom,1)+'٪':''}${c.chg!=null?' · کل مارکت ۲۴س '+fmt(c.chg,1)+'٪':''}${c.fund!=null?' · فاندینگ BTC '+fmt(c.fund,3)+'٪':''}${c.ls!=null?' · L/S '+fmt(c.ls,2):''}${c.tr.length?' · ترند توجه (CoinGecko): '+c.tr.join(', '):''}<br>${c.fund>.05?'⚠️ لانگ‌ها شلوغ‌اند؛ خطر لانگ‌کشی.':c.fund<-.02?'⚠️ شورت‌ها شلوغ‌اند؛ احتمال شورت‌اسکوییز.':''}${c.fng!=null&&c.fng<20?' ترس شدید؛ سطح‌های Sweep معمولاً عمیق‌تر می‌شوند، حجم را کم کن.':c.fng>80?' طمع شدید؛ برگشت‌های ناگهانی محتمل است.':''}</div>`;
+ if(A.length>=20)h+=`<div>📊 پیش‌بینی‌های آخر (قبل از دیدن نتیجه): احتمال ≥۵۰٪ → ${hi.length} معامله میانگین ${fmt(av(hi),2)}R · احتمال &lt;۵۰٪ → ${lo.length} معامله میانگین ${fmt(av(lo),2)}R ${hi.length&&lo.length?(av(hi)>av(lo)?'(مدل تفکیک می‌دهد ✓)':'(هنوز تفکیک ندارد)'):''}</div>`;
+ if(sh.length)h+=`<div>⛔ ردشده توسط AI: ${sh.length} معامله (برد واقعی ${fmt(sh.filter(t=>t.R>0).length/sh.length*100,0)}٪ · ${fmt(av(sh),2)}R) در برابر پذیرفته‌شده: ${kp.length} (${fmt(kp.filter(t=>t.R>0).length/(kp.length||1)*100,0)}٪ · ${fmt(av(kp),2)}R)</div>`;
+ if(good.length)h+=`<div style="margin-top:6px"><b>💪 نقاط قوت</b>${good.map(ln).join('')}</div>`;if(bad.length)h+=`<div style="margin-top:6px"><b>⚠️ ضعف‌ها</b>${bad.map(ln).join('')}</div>`;
+ if(BR.rl.length)h+=`<div style="margin-top:6px"><b>🔍 علت ضررهای اخیر (${BR.rl.length})</b>${Object.entries(cnt).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div>• ${TG[k]} — ${v}</div>`).join('')}</div>`;
+ if(live.length)h+=`<div style="margin-top:6px"><b>🎯 نظر من دربارهٔ سیگنال‌های باز</b>${live.map(t=>`<div>• ${t.sym} ${t.dir>0?'Long':'Short'}: احتمال برد ${fmt(t.ai.p*100,0)}٪ ${t.ai.p>=.55?'👍':t.ai.p<.4?'👎':'😐'} — ${t.ai.top.map(x=>x[0]+(x[1]>0?' (+)':' (−)')).join('، ')}</div>`).join('')}</div>`;
+ if(BR.lg.length)h+=`<details style="margin-top:6px" open><summary>گزارش فعالیت AI</summary>${BR.lg.slice(-4).reverse().map(x=>'<div>'+x+'</div>').join('')}</details>`;
+ if(BR.au.length)h+=`<details style="margin-top:6px"><summary>کالبدشکافی معاملات اخیر</summary>${BR.au.slice(-8).reverse().map(x=>'<div>'+x+'</div>').join('')}</details>`;
+ if(BR.jr.length)h+=`<details style="margin-top:6px" open><summary>دفترچهٔ تغییراتِ خودکار</summary>${BR.jr.slice(-6).reverse().map(x=>'<div>'+x+'</div>').join('')}</details>`;
+ if(n<100)h+=`<div style="color:var(--mu);margin-top:6px">نمونه کم است (&lt;۱۰۰)؛ تا آن موقع به نتیجه‌ها زیاد اعتماد نکن.</div>`;el.innerHTML=h}
+async function bboot(){const P=cfg(),sy=Object.keys(D).filter(k=>D[k].m15.length>200);if(!sy.length)return;BX=[];
+ const V=[{mode:'m1',sbars:3},{mode:'m1',sbars:5},{mode:'m2',sbars:5},{mode:'m2',sbars:8,mssb:50}];
+ for(let i=0;i<sy.length;i++){for(const v of V){try{BX.push(...run(sy[i],{...P,...v}).trades.filter(t=>!t.open))}catch(e){}}
+  if(i%3==0){st(`🧠 AI در حال مرور تاریخچه ${i+1}/${sy.length} ارز · ${BX.length} معامله برای یادگیری...`);await new Promise(r=>setTimeout(r))}}
+ const c=blearn();bthr();BR.lg.push(T(Date.now())+` · مرور تاریخچه: ${BX.length} معامله بررسی، ${c} معامله جدید آموخته شد`);bsave()}
+async function brainCycle(P){try{bctx().then(()=>brainRender(cfg())).catch(()=>{});
+ if(BR.n<60&&!BXD){BXD=1;await bboot()}
+ const c=blearn();
+ if(c){bthr();if(btune(cfg())){const P2=cfg();Object.keys(RES).forEach(k=>RES[k]=run(k,P2))}}
+ const P3=cfg();Object.values(RES).forEach(r=>bpost(r,P3));
+ const rs=Object.values(RES);BR.lg.push(T(Date.now())+` · ${rs.length} ارز · ${rs.reduce((a,r)=>a+(r.raw||r.trades).filter(t=>t.open).length,0)} سیگنال باز · ${c} معامله جدید آموخته · ${rs.reduce((a,r)=>a+r.shadow.length,0)} رد شده`);if(BR.lg.length>12)BR.lg.shift();
+ bsave();renderAll(P3);brainRender(P3)}catch(e){$('ai').innerHTML='❌ خطای AI: '+e.message}}
+$('bh').onclick=async()=>{BXD=1;await bboot();const P=cfg();Object.values(RES).forEach(r=>bpost(r,P));renderAll(P);brainRender(P);st('✅ مرور تاریخچه تمام شد')};
+$('bx').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(BR)],{type:'application/json'}));a.download='vp-brain.json';a.click()};
+$('brs').onclick=()=>{if(confirm('همهٔ حافظه و یادگیری AI پاک شود؟')){try{localStorage.removeItem('vpbrain')}catch(e){}location.reload()}};
+brainRender(cfg());
+</script>
+</body>
+</html>
