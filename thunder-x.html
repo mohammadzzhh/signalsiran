@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>THUNDER-X / MARKET AI</title>
+<style>
+:root{--bg:#0b0f14;--card:#141b24;--tx:#e6edf3;--mu:#7d8b99;--g:#22c55e;--r:#ef4444;--o:#f59e0b;--n:#64748b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0 auto;background:var(--bg);color:var(--tx);font:14px system-ui,Tahoma,sans-serif;max-width:560px;padding:8px}
+.c{background:var(--card);border-radius:12px;padding:10px;margin-bottom:8px}
+.l{direction:ltr;unicode-bidi:isolate;text-align:left}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mu{color:var(--mu);font-size:12px}
+canvas{width:100%;height:240px;display:block}
+.g{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px}
+.G{color:var(--g)}.R{color:var(--r)}.O{color:var(--o)}
+.it{padding:7px 4px;border-bottom:1px solid #1f2a36;cursor:pointer;font-size:13px}.it.s{background:#1b2633}
+#list{max-height:300px;overflow:auto}
+.tag{font-size:11px;padding:1px 6px;border-radius:8px;border:1px solid var(--n)}
+</style></head><body>
+<div class="c row"><div><div id="st" class="l" style="font-weight:700">⚪ CONNECTING</div><div class="mu l" id="ex">Binance Spot · —</div></div><div class="l"><div style="font-weight:700">THUNDER-X · ALL</div><button id="aib" onclick="toggleAI()" style="margin-top:4px;background:#1b2633;color:#e6edf3;border:1px solid #334;border-radius:8px;padding:3px 10px">AI: OFF</button></div></div>
+<div class="c"><div class="row"><div><div class="mu l" id="sy">—</div><div id="px" class="l" style="font-size:24px;font-weight:700">—</div></div><div class="l" style="text-align:right"><div id="ch" class="mu">24H —</div><div id="vo" class="mu">Vol —</div></div></div>
+<div id="sig" class="l" style="font-size:24px;font-weight:800;margin-top:6px">⚪ WAIT</div>
+<div id="why" class="mu" style="margin:4px 0 4px">در انتظار داده زنده…</div><div id="mt" class="mu l" style="margin-bottom:6px"></div><div id="tr" class="g l"></div></div>
+<div class="c"><canvas id="cv"></canvas><div class="mu l">5m · Swings · Entry/SL/TP</div></div>
+<div class="c"><div class="row"><b>Scanner</b><span class="mu l" id="sc">Universe — → Deep —</span></div><div id="list" class="l"></div></div>
+<div class="c"><div class="g l"><span>Initial Capital</span><b>$100.00</b><span>Realized</span><b id="rp">$0.00</b><span>Unrealized</span><b id="up">$0.00</b><span>Equity</span><b id="eq">$100.00</b><span>Open</span><b id="op">0/3</b></div></div>
+<div class="c"><div class="g l"><span>Trades</span><b id="nt">0</b><span>Win Rate</span><b id="wr">N/A</b><span>Profit Factor</span><b id="pf">N/A</b><span>Max Drawdown</span><b id="dd">N/A</b><span>Avg Duration</span><b id="ad">N/A</b></div></div>
+<div class="c mu l" id="log">Snapshots: —</div>
+<script>
+const TF='5m',STALE=6000,COOL=8,MAXT=3,SZ=100/3,NC=40,MINQ=10e6,MINR=.015;
+let ws,tries=0,lastMsg=0,status='CONNECTING',T={},S={},deep=new Set(),sel='BTCUSDT',realized=0,tlog=[],snaps=[],peak=100,maxDD=0,rt,sid=1,nuni=0;
+const $=i=>document.getElementById(i),f=(x,d=2)=>Number(x).toLocaleString('en',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fp=x=>f(x,x>=100?2:x>=1?4:6),money=x=>(x<0?'-':'+')+'$'+f(Math.abs(x));
+const setStatus=s=>{status=s;const m={LIVE:['🟢 CONNECTED · LIVE','var(--g)'],DOWN:['🔴 DISCONNECTED · RECONNECTING…','var(--r)'],STALE:['🟠 STALE DATA · SIGNALS PAUSED','var(--o)'],CONNECTING:['⚪ CONNECTING','var(--mu)']}[s];$('st').textContent=m[0];$('st').style.color=m[1]};
+const mk=s=>S[s]||(S[s]={C:[],ready:0,loading:0,trade:null,cool:0,lastE:0,dec:'WAIT',why:'در انتظار تحلیل',q:'SCAN'});
+const send=(m,p)=>{if(ws&&ws.readyState===1&&p.length)ws.send(JSON.stringify({method:m,params:p,id:sid++}))};
+const st=s=>s.toLowerCase()+'@kline_'+TF;
+async function hist(s){const o=mk(s);if(o.loading)return;o.loading=1;try{const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${s}&interval=${TF}&limit=150`);const a=await r.json();o.C=a.map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5],tb:+k[9]}));o.ready=1;o.q='WAIT';htf(s)}catch(e){}o.loading=0}
+function sync(){const U=Object.values(T).filter(t=>/USDT$/.test(t.s)&&!/(UP|DOWN|BULL|BEAR)USDT$/.test(t.s));nuni=U.length;
+  const cand=U.filter(t=>t.q>=MINQ&&(t.h-t.l)/t.l>=MINR).sort((a,b)=>b.q*(b.h-b.l)/b.l-a.q*(a.h-a.l)/a.l).slice(0,NC).map(t=>t.s);
+  const want=new Set([...cand,sel,...Object.keys(S).filter(k=>S[k].trade)]);
+  const add=[...want].filter(s=>!deep.has(s)),del=[...deep].filter(s=>!want.has(s));
+  add.forEach(s=>{deep.add(s);mk(s);hist(s)});send('SUBSCRIBE',add.map(st));
+  del.forEach(s=>{deep.delete(s);delete S[s]});send('UNSUBSCRIBE',del.map(st));
+  deep.forEach(s=>{if(!S[s].ready)hist(s)})}
+function connect(){
+  try{ws=new WebSocket('wss://stream.binance.com:9443/stream?streams=!miniTicker@arr')}catch(e){return retry()}
+  ws.onopen=()=>{tries=0;lastMsg=Date.now();setStatus('LIVE');send('SUBSCRIBE',[...deep].map(st));deep.forEach(s=>{S[s].ready=0;S[s].lastE=0})};
+  ws.onmessage=ev=>{const d=JSON.parse(ev.data).data;if(!d)return;lastMsg=Date.now();if(status!=='LIVE')setStatus('LIVE');
+    if(Array.isArray(d)){const first=!nuni;d.forEach(x=>T[x.s]={s:x.s,c:+x.c,o:+x.o,h:+x.h,l:+x.l,q:+x.q});if(first)sync()}
+    else if(d.e==='kline'){const o=S[d.s];if(!o||!o.ready||d.E<o.lastE)return;o.lastE=d.E;const k=d.k,n={t:k.t,o:+k.o,h:+k.h,l:+k.l,c:+k.c,v:+k.v,tb:+k.V},L=o.C[o.C.length-1];
+      if(L&&L.t===n.t)o.C[o.C.length-1]=n;else o.C.push(n);if(o.C.length>400)o.C.shift();track(d.s,n.c);if(k.x)evaluate(d.s)}};
+  ws.onclose=ws.onerror=()=>{if(status!=='DOWN')setStatus('DOWN');retry()}}
+function retry(){clearTimeout(rt);rt=setTimeout(connect,Math.min(30000,1000*2**tries++))}
+setInterval(()=>{if(status==='LIVE'&&Date.now()-lastMsg>STALE)setStatus('STALE');$('ex').textContent='Binance Spot · '+(lastMsg?Math.max(0,Date.now()-lastMsg)+'ms ago':'—');render()},1000);
+setInterval(()=>{if(status==='LIVE')sync()},20000);
+
+function swings(a){const R=[],n=3;for(let i=n;i<a.length-n;i++){let H=1,L=1;for(let j=1;j<=n;j++){if(a[i].h<=a[i-j].h||a[i].h<=a[i+j].h)H=0;if(a[i].l>=a[i-j].l||a[i].l>=a[i+j].l)L=0}if(H)R.push({i,p:a[i].h,type:'H'});if(L)R.push({i,p:a[i].l,type:'L'})}return R}
+const atr=a=>{const x=a.slice(-15,-1);return x.reduce((s,k)=>s+k.h-k.l,0)/x.length};
+function dec(s,d,w,q){const o=S[s];o.dec=d;o.why=w;o.q=q||(d==='WAIT'?'WAIT':'HIGH')}
+const open=()=>Object.keys(S).filter(k=>S[k].trade);
+function evaluate(s){const o=S[s];if(status!=='LIVE'||o.C.length<40)return;if(ai.on&&ai.off)return dec(s,'WAIT','AI OFFLINE · صدور سیگنال متوقف است');if(o.cool>0)o.cool--;
+  if(o.trade)return dec(s,o.trade.side,o.trade.kind,'HIGH');
+  if(o.cool>0)return dec(s,'WAIT','Cooldown بعد از معامله');
+  const C=o.C,c=C[C.length-1],S2=swings(C.slice(0,-1)),A=atr(C),R=c.h-c.l||1e-9,body=Math.abs(c.c-c.o)/R;
+  const SH=[...S2].reverse().find(x=>x.type==='H'),SL=[...S2].reverse().find(x=>x.type==='L');
+  const up=(c.h-Math.max(c.o,c.c))/R,lo=(Math.min(c.o,c.c)-c.l)/R,vol=C.slice(-21,-1).reduce((a,k)=>a+k.v,0)/20;
+  let side=null,kind='',sl=0;
+  if(SL&&c.l<SL.p&&c.c>SL.p&&lo>=.4){side='LONG';kind='SSL Sweep + Reclaim';sl=c.l-.1*A}
+  else if(SH&&c.h>SH.p&&c.c<SH.p&&up>=.4){side='SHORT';kind='BSL Sweep + Rejection';sl=c.h+.1*A}
+  else if(SH&&c.c>SH.p&&body>.6&&R>1.2*A&&(c.h-c.c)/R<.25){side='LONG';kind='Valid Break + Displacement (بدون Pullback)';sl=Math.min(c.l,SH.p-.3*A)}
+  else if(SL&&c.c<SL.p&&body>.6&&R>1.2*A&&(c.c-c.l)/R<.25){side='SHORT';kind='Valid Break + Displacement (بدون Pullback)';sl=Math.max(c.h,SL.p+.3*A)}
+  if(!side)return dec(s,'WAIT','Sweep/Break با کیفیت وجود ندارد','WAIT');
+  const e=c.c,risk=Math.abs(e-sl);
+  let tps=side==='LONG'?S2.filter(x=>x.type==='H'&&x.p>e+.5*risk).map(x=>x.p).sort((a,b)=>a-b):S2.filter(x=>x.type==='L'&&x.p<e-.5*risk).map(x=>x.p).sort((a,b)=>b-a);
+  tps=tps.filter((p,i)=>i===0||Math.abs(p-tps[i-1])>.3*A).slice(0,4);
+  if(!tps.length)return dec(s,'WAIT',kind+' · هدف منطقی ندارد','WATCH');
+  const rr=Math.abs(tps[0]-e)/risk;
+  if(rr<1)return dec(s,'WAIT',`${kind} · R/R=${rr.toFixed(2)} ناکافی`,'WATCH');
+  if(risk>3*A)return dec(s,'WAIT',kind+' · ریسک بیش از حد','WATCH');
+  const m=o.mtf||{},sg=side==='LONG'?1:-1,opp=['1h','4h'].filter(k=>(m[k]||0)*sg<0).length,isB=/Break/.test(kind);
+  if(opp===2||(opp&&isB))return dec(s,'WAIT',kind+' · تعارض تایم‌فریم بالاتر (1H/4H)','WATCH');
+  const dr=c.v?(2*c.tb-c.v)/c.v:0,cv=C.slice(-10).reduce((a,k)=>a+(2*k.tb-k.v),0);
+  if(sg*dr<(isB?.1:-.05))return dec(s,'WAIT',kind+' · Order Flow (Delta) تأیید نمی‌کند','WATCH');
+  if(open().length>=MAXT)return dec(s,'WAIT',kind+' · سقف معاملات همزمان','WATCH');
+  const vt=(c.v>1.5*vol?'حجم بالا':'حجم عادی')+' · Δ'+(dr*100).toFixed(0)+'%',g={side,kind,sl,tps,vt,S2,state:{symbol:s,price:e,setup:kind,sl,tps,rr:+rr.toFixed(2),mtf_bias:m,delta_pct:+(dr*100).toFixed(0),cvd10_sign:Math.sign(cv),atr:+A.toFixed(6),vol_vs_avg:+(c.v/vol).toFixed(2),swings:S2.slice(-6).map(x=>x.type+x.p)}};
+  if(!ai.on)return enter(s,g);
+  o.q='WATCH';o.why=kind+' · در انتظار تأیید AI…';
+  askAI(g.state).then(v=>{if(S[s]!==o||o.trade)return;v&&v.verdict==='CONFIRM'?enter(s,g,v.reason):dec(s,'WAIT','AI رد کرد: '+(v&&v.reason||''),'WATCH')}).catch(()=>{ai.off=1;dec(s,'WAIT','AI OFFLINE · سیگنال متوقف','WATCH')})}
+function enter(s,g,why){const o=S[s],c=o.C[o.C.length-1],d=g.side==='LONG'?1:-1;if(status!=='LIVE')return;
+  if(open().length>=MAXT)return dec(s,'WAIT',g.kind+' · سقف معاملات همزمان','WATCH');
+  const e=c.c;if(d*(e-g.sl)<=0||d*(g.tps[0]-e)<=0)return dec(s,'WAIT',g.kind+' · قیمت از محدودهٔ ورود خارج شد','WATCH');
+  o.trade={id:s+Date.now(),side:g.side,entry:e,sl:g.sl,tps:g.tps,hit:0,t0:Date.now(),kind:g.kind+' · '+g.vt+(why?' · AI: '+why:''),size:SZ/g.tps.length,pl:0};
+  snaps.unshift({id:o.trade.id,ts:new Date().toISOString(),symbol:s,tf:TF,side:g.side,entry:e,sl:g.sl,tps:g.tps,mtf:o.mtf,evidence:{primary:[g.kind],secondary:[g.vt],ignored:['RSI','MACD']},ai:why||null,swings:g.S2.slice(-6),invalidation:'پذیرش قیمت '+(d>0?'زیر ':'بالای ')+fp(g.sl)});save();
+  dec(s,g.side,o.trade.kind,'HIGH')}
+function unreal(o,px){const t=o.trade;if(!t)return 0;return (t.side==='LONG'?1:-1)*(px-t.entry)/t.entry*t.size*(t.tps.length-t.hit)}
+function track(s,px){const o=S[s],t=o.trade;if(!t||status!=='LIVE')return;const d=t.side==='LONG'?1:-1;
+  while(t.hit<t.tps.length&&d*(px-t.tps[t.hit])>=0){const g=d*(t.tps[t.hit]-t.entry)/t.entry*t.size;realized+=g;t.pl+=g;t.hit++}
+  const left=t.tps.length-t.hit;
+  if(!left||d*(px-t.sl)<=0){if(left){const g=d*(t.sl-t.entry)/t.entry*t.size*left;realized+=g;t.pl+=g}
+    tlog.push({s,pl:t.pl,dur:Date.now()-t.t0});o.trade=null;o.cool=COOL;dec(s,'WAIT','معامله بسته شد؛ Cooldown','WAIT')}}
+const QL={HIGH:['HIGH QUALITY','G'],WATCH:['WATCH','O'],WAIT:['WAIT',''],SCAN:['SCANNING','']};
+const rank={HIGH:0,WATCH:1,WAIT:2,SCAN:3};
+function render(){
+  const o=S[sel],t=T[sel],L=o&&o.C[o.C.length-1],live=status==='LIVE';$('sy').textContent=sel;
+  if(t){$('px').textContent=fp(t.c);const p=(t.c-t.o)/t.o*100;$('ch').textContent='24H '+(p>=0?'+':'')+p.toFixed(2)+'%';$('ch').className='mu '+(p>=0?'G':'R');$('vo').textContent='Vol '+f(t.q/1e6,1)+'M$ · Rng '+((t.h-t.l)/t.l*100).toFixed(1)+'%'}
+  const d=o?(o.trade?o.trade.side:o.dec):'WAIT',col={LONG:'var(--g)',SHORT:'var(--r)',WAIT:'var(--n)'}[d];
+  $('sig').textContent=live||(o&&o.trade)?{LONG:'🟢 LONG',SHORT:'🔴 SHORT',WAIT:'⚪ WAIT'}[d]:'⏸ PAUSED';$('sig').style.color=live||(o&&o.trade)?col:'var(--o)';
+  $('why').textContent=!live?'داده زنده نیست؛ سیگنال جدید متوقف است.':o?o.why:'—';
+  $('aib').textContent=ai.on?(ai.off?'AI OFFLINE':'AI: ON'):'AI: OFF';$('aib').style.color=ai.on?(ai.off?'var(--o)':'var(--g)'):'';$('mt').textContent=o&&o.mtf?['15m','1h','4h'].map(k=>k+(o.mtf[k]>0?' ▲':o.mtf[k]<0?' ▼':' ■')).join('  ')+(L&&L.v?'  ·  Δ '+((2*L.tb-L.v)/L.v*100).toFixed(0)+'%':''):'';
+  const tr=o&&o.trade;if(tr&&L){const el=Math.floor((Date.now()-tr.t0)/1000),u=unreal(o,L.c);
+    $('tr').innerHTML=`<span>Entry</span><b>${fp(tr.entry)}</b><span>SL</span><b>${fp(tr.sl)}</b>`+[0,1,2,3].map(i=>`<span>TP${i+1} ${i<tr.hit?'✓':i===tr.hit?'●':'○'}</span><b>${tr.tps[i]?fp(tr.tps[i]):'—'}</b>`).join('')+`<span>Elapsed</span><b>${String(Math.floor(el/60)).padStart(2,0)}:${String(el%60).padStart(2,0)}</b><span>Unrealized</span><b class="${u>=0?'G':'R'}">${money(u)}</b>`}else $('tr').innerHTML='';
+  let u=0;Object.keys(S).forEach(k=>{const q=S[k],c=q.C[q.C.length-1];if(q.trade&&c)u+=unreal(q,c.c)});
+  const eq=100+realized+u;peak=Math.max(peak,eq);maxDD=Math.max(maxDD,(peak-eq)/peak*100);
+  $('rp').textContent=money(realized);$('up').textContent=money(u);$('eq').textContent='$'+f(eq);$('op').textContent=open().length+'/'+MAXT;
+  const n=tlog.length;$('nt').textContent=n;if(n){const w=tlog.filter(x=>x.pl>0),l=tlog.filter(x=>x.pl<=0),gw=w.reduce((a,x)=>a+x.pl,0),gl=-l.reduce((a,x)=>a+x.pl,0);
+    $('wr').textContent=(w.length/n*100).toFixed(0)+'%';$('pf').textContent=gl>0?(gw/gl).toFixed(2):'∞';$('dd').textContent=maxDD.toFixed(2)+'%';$('ad').textContent=Math.round(tlog.reduce((a,x)=>a+x.dur,0)/n/60000)+' min'}
+  $('log').textContent=snaps.length?'Snapshots: '+snaps.slice(0,4).map(x=>`${x.symbol} ${x.side} @${fp(x.entry)}`).join(' | '):'Snapshots: —';
+  $('sc').textContent=`Universe ${nuni} → Deep ${deep.size}`;
+  const rows=[...deep].map(k=>S[k]&&T[k]?{k,q:S[k].trade?'HIGH':S[k].q,t:T[k],tr:S[k].trade}:null).filter(Boolean).sort((a,b)=>rank[a.q]-rank[b.q]||b.t.q-a.t.q);
+  $('list').innerHTML=rows.map(r=>{const p=(r.t.c-r.t.o)/r.t.o*100,[lb,cl]=QL[r.q];return `<div class="it row ${r.k===sel?'s':''}" onclick="sel='${r.k}';sync();render()"><b>${r.k.replace('USDT','')}</b><span>${fp(r.t.c)}</span><span class="${p>=0?'G':'R'}">${p.toFixed(1)}%</span><span class="tag ${cl}">${r.tr?r.tr.side+' · ':''}${lb}</span></div>`}).join('');
+  draw()}
+function draw(){const o=S[sel];if(!o||!o.C.length)return;const cv=$('cv'),dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;const x=cv.getContext('2d');x.scale(dpr,dpr);
+  const a=o.C.slice(-70),tr=o.trade;let hi=Math.max(...a.map(k=>k.h)),lo=Math.min(...a.map(k=>k.l));if(tr)[tr.entry,tr.sl,...tr.tps].forEach(p=>{hi=Math.max(hi,p);lo=Math.min(lo,p)});const pd=(hi-lo)*.05;hi+=pd;lo-=pd;
+  const Y=p=>H-(p-lo)/(hi-lo)*H,bw=W/a.length;
+  a.forEach((k,i)=>{const col=k.c>=k.o?'#22c55e':'#ef4444',cx=i*bw+bw/2;x.strokeStyle=x.fillStyle=col;x.beginPath();x.moveTo(cx,Y(k.h));x.lineTo(cx,Y(k.l));x.stroke();x.fillRect(cx-bw*.35,Math.min(Y(k.o),Y(k.c)),bw*.7,Math.max(1,Math.abs(Y(k.o)-Y(k.c))))});
+  const off=o.C.length-a.length;x.font='10px sans-serif';swings(o.C).filter(z=>z.i>=off).forEach(z=>{x.fillStyle='#7d8b99';x.fillText(z.type==='H'?'SH':'SL',(z.i-off)*bw,Y(z.p)+(z.type==='H'?-3:11))});
+  const ln=(p,c,t)=>{x.strokeStyle=c;x.setLineDash([4,3]);x.beginPath();x.moveTo(0,Y(p));x.lineTo(W,Y(p));x.stroke();x.setLineDash([]);x.fillStyle=c;x.fillText(t+' '+fp(p),4,Y(p)-2)};
+  ln(a[a.length-1].c,'#94a3b8','Price');if(tr){ln(tr.entry,'#3b82f6','▶ ENTRY');ln(tr.sl,'#ef4444','SL');tr.tps.forEach((p,i)=>ln(p,'#22c55e','TP'+(i+1)))}}
+const ai={on:0,off:0,s:null};
+async function htf(s){const o=S[s];if(!o)return;o.mtf=o.mtf||{};for(const iv of ['15m','1h','4h']){try{const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${s}&interval=${iv}&limit=80`);o.mtf[iv]=bias((await r.json()).map(k=>({h:+k[2],l:+k[3],c:+k[4]})))}catch(e){}}}
+function bias(a){const w=swings(a.slice(0,-1)),H=w.filter(x=>x.type==='H').slice(-2),L=w.filter(x=>x.type==='L').slice(-2);if(H.length<2||L.length<2)return 0;const u=(H[1].p>H[0].p)+(L[1].p>L[0].p),d=(H[1].p<H[0].p)+(L[1].p<L[0].p);return u===2?1:d===2?-1:u>d?.5:d>u?-.5:0}
+const getS=async()=>ai.s||(ai.s=await(window.claude?window.claude.use('sample'):null));
+async function askAI(st){const sm=await getS();if(!sm)throw 0;return sm.json('تو تحلیلگر ریسک هستی. وضعیت فشردهٔ بازار و سیگنال کاندید را بررسی کن؛ دنبال دلیل مخالف و احتمال تله بودن هم باش. فقط JSON برگردان: {"verdict":"CONFIRM" یا "VETO","reason":"یک جملهٔ کوتاه فارسی"}. اگر برتری روشن نیست VETO بده.\n'+JSON.stringify(st),{modelTier:'quick',cache:false})}
+async function toggleAI(){if(ai.on){ai.on=0;ai.off=0;return render()}ai.on=1;try{const sm=await getS();if(!sm)throw 0;await sm('فقط بنویس OK',{modelTier:'quick'});ai.off=0}catch(e){ai.off=1}render()}
+function save(){try{const tr={};Object.keys(S).forEach(k=>{if(S[k].trade)tr[k]=S[k].trade});localStorage.setItem('tx_state',JSON.stringify({realized,tlog,peak,maxDD,tr,snaps:snaps.slice(0,50)}))}catch(_){}}
+try{const j=JSON.parse(localStorage.getItem('tx_state')||'{}');realized=j.realized||0;tlog=j.tlog||[];peak=j.peak||100;maxDD=j.maxDD||0;snaps=j.snaps||[];Object.entries(j.tr||{}).forEach(([k,t])=>{mk(k).trade=t;deep.add(k);hist(k)})}catch(_){}
+setInterval(save,5000);setInterval(()=>{[...deep].forEach((s,i)=>setTimeout(()=>htf(s),i*1500))},120000);
+mk(sel);deep.add(sel);setStatus('CONNECTING');connect();addEventListener('resize',draw);
+</script></body></html>
